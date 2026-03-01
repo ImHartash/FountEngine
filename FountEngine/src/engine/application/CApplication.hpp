@@ -28,7 +28,11 @@ private:
 	int m_nClientHeight;
 
 	CGameTimer m_AppTimer;
+	
 	bool m_bPaused;
+	bool m_bMinimized;
+	bool m_bMaximized;
+	bool m_bResizing;
 
 	std::wstring m_wstrWindowCaption;
 };

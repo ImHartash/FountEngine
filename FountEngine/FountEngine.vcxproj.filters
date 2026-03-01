@@ -27,6 +27,12 @@
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\systems\logging\CLogSystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\input\CInputSystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -41,10 +47,13 @@
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\engine\input\CInputSystem.hpp">
+    <ClInclude Include="src\systems\input\CInputSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\defines.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\logging\CLogSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

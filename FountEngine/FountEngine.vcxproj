@@ -141,13 +141,16 @@
   <ItemGroup>
     <ClCompile Include="src\engine\application\CApplication.cpp" />
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
+    <ClCompile Include="src\systems\input\CInputSystem.cpp" />
+    <ClCompile Include="src\systems\logging\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
     <ClCompile Include="src\wmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
-    <ClInclude Include="src\engine\input\CInputSystem.hpp" />
+    <ClInclude Include="src\systems\input\CInputSystem.hpp" />
+    <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
     <ClInclude Include="src\utils\defines.hpp" />

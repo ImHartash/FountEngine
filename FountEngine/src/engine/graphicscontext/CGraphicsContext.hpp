@@ -11,11 +11,12 @@ public:
 	CGraphicsContext operator=(const CGraphicsContext&) = delete;
 
 	bool Initialize(HWND hWnd, int nWidth, int nHeight);
+	bool IsValidDevice() const { return m_pDevice != nullptr; };
 
 	void UpdateScene(float flDeltaTime);
 	void RenderScene();
 
-	void ResizeBuffers(int nWidth, int nHeight);
+	void OnResize(int nWidth, int nHeight);
 
 private:
 	// DX11
@@ -23,6 +24,9 @@ private:
 	ID3D11DeviceContext* m_pDeviceContext;
 	IDXGISwapChain* m_pSwapChain;
 
-	// Buffers
-	ID3D11Buffer* m_pDepthStencilBuffer;
+	ID3D11RenderTargetView* m_pRenderTargetView;
+	ID3D11DepthStencilView* m_pDepthStencilView;
+	ID3D11Texture2D* m_pDepthStencilBuffer;
+
+	D3D11_VIEWPORT m_dxViewport;
 };
