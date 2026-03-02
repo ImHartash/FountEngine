@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
+    <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\systems\input\CInputSystem.hpp" />
     <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />

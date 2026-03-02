@@ -56,5 +56,8 @@
     <ClInclude Include="src\systems\logging\CLogSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\game\camera\CCameraObject.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
