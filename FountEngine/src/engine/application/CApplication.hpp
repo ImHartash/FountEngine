@@ -4,6 +4,7 @@
 #include <memory>
 #include "game/timer/CGameTimer.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
+#include "systems/input/CInputSystem.hpp"
 
 class CApplication {
 public:

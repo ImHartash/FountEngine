@@ -11,7 +11,7 @@ LRESULT CALLBACK OnWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 CApplication::CApplication() 
 	: m_hInstance(nullptr), m_hMainWindow(nullptr), m_nClientWidth(0), m_nClientHeight(0), 
-	m_bPaused(false), m_bMinimized(false), m_bMaximized(false)
+	m_bPaused(false), m_bMinimized(false), m_bMaximized(false), m_bResizing(false)
 {
 	g_pApplication = this;
 }
@@ -60,6 +60,8 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 		return false;
 	}
 
+	//CInputSystem::GetInstance().Initialize(m_hMainWindow);
+
 	ShowWindow(m_hMainWindow, SW_SHOW);
 	UpdateWindow(m_hMainWindow);
 
@@ -84,6 +86,8 @@ int CApplication::Run() {
 			else {
 				Sleep(100);
 			}
+
+			CInputSystem::GetInstance().Update();
 		}
 	}
 
@@ -157,18 +161,13 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_LBUTTONDOWN:
-	case WM_MBUTTONDOWN:
-	case WM_RBUTTONDOWN:
-		// INPUT
+	case WM_KEYDOWN:
+		CInputSystem::GetInstance().OnKeyDown((UINT)wParam);
 		return 0;
-	case WM_LBUTTONUP:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONUP:
-		// INPUT
+	case WM_KEYUP:
+		CInputSystem::GetInstance().OnKeyUp((UINT)wParam);
 		return 0;
-	case WM_MOUSEMOVE:
-		// INPUT
+	case WM_INPUT:
 		return 0;
 	}
 

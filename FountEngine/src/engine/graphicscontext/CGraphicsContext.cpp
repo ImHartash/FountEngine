@@ -1,6 +1,7 @@
 #include "CGraphicsContext.hpp"
 #include "utils/defines.hpp"
 #include "systems/logging/CLogSystem.hpp"
+#include "systems/input/CInputSystem.hpp"
 
 CGraphicsContext::~CGraphicsContext() {
 	RELEASE_COM(m_pDeviceContext);
@@ -75,7 +76,7 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
 }
 
 void CGraphicsContext::UpdateScene(float flDeltaTime) {
-	//
+	if (CInputSystem::GetInstance().IsKeyPressed('W')) LOG_DEBUG("1");
 }
 
 void CGraphicsContext::RenderScene() {

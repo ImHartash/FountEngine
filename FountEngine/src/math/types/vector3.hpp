@@ -1,5 +1,4 @@
 #pragma once
-#define 
 #include <DirectXMath.h>
 
 struct Vector3_t {
@@ -36,6 +35,13 @@ struct Vector3_t {
 		return *this;
 	}
 
+	Vector3_t& operator=(const DirectX::XMFLOAT3& dxFloat) {
+		x = dxFloat.x;
+		y = dxFloat.y;
+		z = dxFloat.z;
+		return *this;
+	}
+
 	Vector3_t operator+(const Vector3_t& vecOther) const {
 		return Vector3_t(x + vecOther.x, y + vecOther.y, z + vecOther.z);
 	}
@@ -58,5 +64,13 @@ struct Vector3_t {
 
 	bool operator!=(const Vector3_t& vecOther) const {
 		return !(*this == vecOther);
+	}
+
+	DirectX::XMFLOAT3 DXAsFloat3() const {
+		return { x, y, z };
+	}
+
+	DirectX::XMVECTOR DXAsVector() {
+		return { x, y, z };
 	}
 };
