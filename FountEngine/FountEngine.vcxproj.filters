@@ -33,6 +33,12 @@
     <ClCompile Include="src\systems\input\CInputSystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\camera\CCameraObject.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -62,5 +68,27 @@
     <ClInclude Include="src\math\vertex.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\geometrygenerator\CGeometryGenerator.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\CFileSystem.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\defines.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\baseentity\IBaseEntity.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\common.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\vertex_shader.hlsl" />
+    <FxCompile Include="shaders\pixel_shader.hlsl" />
   </ItemGroup>
 </Project>

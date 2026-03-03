@@ -2,6 +2,7 @@
 #include "utils/defines.hpp"
 #include "systems/logging/CLogSystem.hpp"
 #include "systems/input/CInputSystem.hpp"
+#include "math/defines.hpp"
 
 CGraphicsContext::~CGraphicsContext() {
 	RELEASE_COM(m_pDeviceContext);
@@ -70,13 +71,22 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
 	RELEASE_COM(pDXGIAdapter);
 	RELEASE_COM(pDXGIFactory);
 
+	if (!LoadShaders()) {
+		LOG_FATAL("Failed to load shaders...");
+		return false;
+	}
+
 	OnResize(nWidth, nHeight);
+
+	m_PlayerCamera.SetPosition({ -5.f, 0.f, 0.f });
 
 	return true;
 }
 
 void CGraphicsContext::UpdateScene(float flDeltaTime) {
-	if (CInputSystem::GetInstance().IsKeyPressed('W')) LOG_DEBUG("1");
+	m_PlayerCamera.Update(flDeltaTime);
+
+	DirectX::XMFLOAT4X4 mtViewMatrix = m_PlayerCamera.GetViewMatrix();
 }
 
 void CGraphicsContext::RenderScene() {
@@ -86,6 +96,8 @@ void CGraphicsContext::RenderScene() {
 	const float aClearColor[4] = { 0.2f, 0.4f, 0.7f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, aClearColor);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+
+
 
 	HR(m_pSwapChain->Present(1, 0));
 }
@@ -131,4 +143,81 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	m_dxViewport.MaxDepth = 1.f;
 
 	m_pDeviceContext->RSSetViewports(1, &m_dxViewport);
+
+	DirectX::XMMATRIX mtProjection = DirectX::XMMatrixPerspectiveFovLH(DEG_TO_RAD(75), static_cast<float>(nWidth) / nHeight, 1.f, 1000.f);
+	DirectX::XMStoreFloat4x4(&m_mtProjection, mtProjection);
+}
+
+bool CGraphicsContext::LoadShaders() {
+	ID3DBlob* pVertexShaderBlob = nullptr;
+	ID3DBlob* pPixelShaderBlob = nullptr;
+	HR(D3DReadFileToBlob(L"game/shaders/vertex_shader_c.cso", &pVertexShaderBlob));
+	HR(D3DReadFileToBlob(L"game/shaders/pixel_shader_c.cso", &pPixelShaderBlob));
+	if (!pVertexShaderBlob || !pPixelShaderBlob)
+		return false;
+
+	// Initializing vertex shader
+	HRESULT hResult = m_pDevice->CreateVertexShader(
+		pVertexShaderBlob->GetBufferPointer(),
+		pVertexShaderBlob->GetBufferSize(),
+		nullptr,
+		&m_pVertexShader
+	);
+
+	if (FAILED(hResult)) {
+		LOG_ERROR("Failed to create vertex shader.");
+		RELEASE_COM(pVertexShaderBlob);
+		return false;
+	}
+
+	// Initializing pixel shader
+	hResult = m_pDevice->CreatePixelShader(
+		pPixelShaderBlob->GetBufferPointer(),
+		pPixelShaderBlob->GetBufferSize(),
+		nullptr,
+		&m_pPixelShader
+	);
+
+	if (FAILED(hResult)) {
+		LOG_ERROR("Failed to create pixel shader.");
+		RELEASE_COM(pVertexShaderBlob);
+		RELEASE_COM(pPixelShaderBlob);
+		return false;
+	}
+
+	// Initializing constant buffer
+	D3D11_BUFFER_DESC cbDesc = {};
+	cbDesc.Usage = D3D11_USAGE_DEFAULT;
+	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cbDesc.ByteWidth = sizeof(DirectX::XMFLOAT4X4);
+	cbDesc.CPUAccessFlags = 0;
+
+	DirectX::XMFLOAT4X4 mtIdentity;
+	DirectX::XMStoreFloat4x4(&mtIdentity, DirectX::XMMatrixIdentity());
+
+	D3D11_SUBRESOURCE_DATA BufferInitData = {};
+	BufferInitData.pSysMem = &mtIdentity;
+
+	hResult = m_pDevice->CreateBuffer(&cbDesc, &BufferInitData, &m_pWorldViewProjectionBuffer);
+	if (FAILED(hResult)) {
+		LOG_ERROR("Failed to create contstant buffer.");
+		return false;
+	}
+
+	BuildVertexLayout(pVertexShaderBlob);
+
+	RELEASE_COM(pVertexShaderBlob);
+	RELEASE_COM(pPixelShaderBlob);
+
+	LOG_INFO("Successfully loaded shaders!");
+	return true;
+}
+
+void CGraphicsContext::BuildVertexLayout(ID3DBlob* pVSBlob) {
+	D3D11_INPUT_ELEMENT_DESC VertexDesc[] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+
+	HR(m_pDevice->CreateInputLayout(VertexDesc, 2, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pInputLayout));
 }

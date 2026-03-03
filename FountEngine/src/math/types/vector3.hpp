@@ -66,11 +66,30 @@ struct Vector3_t {
 		return !(*this == vecOther);
 	}
 
+	Vector3_t Cross(const Vector3_t& vecOther) {
+		return {
+			y * vecOther.z - z * vecOther.y,
+			z * vecOther.x - x * vecOther.z,
+			x * vecOther.y - y * vecOther.x
+		};
+	}
+
+	float GetLength() const {
+		return sqrtf(x * x + y * y + z * z);
+	}
+
+	Vector3_t Normalize() {
+		float flLength = GetLength();
+		if (flLength > 0)
+			return *this / flLength;
+		return *this;
+	}
+
 	DirectX::XMFLOAT3 DXAsFloat3() const {
 		return { x, y, z };
 	}
 
-	DirectX::XMVECTOR DXAsVector() {
+	DirectX::XMVECTOR DXAsVector() const {
 		return { x, y, z };
 	}
 };

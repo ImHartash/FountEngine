@@ -118,8 +118,15 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <FxCompile>
+      <EntryPointName />
+    </FxCompile>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)/game/shaders/%(Filename)_c.cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -135,12 +142,21 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <FxCompile>
+      <EntryPointName />
+    </FxCompile>
+    <FxCompile>
+      <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(OutDir)/game/shaders/%(Filename)_c.cso</ObjectFileOutput>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\application\CApplication.cpp" />
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
+    <ClCompile Include="src\game\camera\CCameraObject.cpp" />
+    <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
     <ClCompile Include="src\systems\input\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logging\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
@@ -149,13 +165,47 @@
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
+    <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
+    <ClInclude Include="src\math\defines.hpp" />
     <ClInclude Include="src\math\vertex.hpp" />
+    <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />
+    <ClInclude Include="src\systems\filesystem\CFileSystem.hpp" />
     <ClInclude Include="src\systems\input\CInputSystem.hpp" />
     <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
     <ClInclude Include="src\utils\defines.hpp" />
+    <ClInclude Include="src\utils\geometrygenerator\CGeometryGenerator.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\common.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaders\pixel_shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FntPixelShader</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FntPixelShader</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="shaders\vertex_shader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FntVertexShader</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FntVertexShader</EntryPointName>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
