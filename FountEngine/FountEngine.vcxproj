@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -157,6 +157,7 @@
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
     <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
+    <ClCompile Include="src\systems\filesystem\CFileSystem.cpp" />
     <ClCompile Include="src\systems\input\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logging\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
@@ -167,10 +168,14 @@
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
+    <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
+    <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp" />
     <ClInclude Include="src\math\defines.hpp" />
+    <ClInclude Include="src\math\types\angle.hpp" />
     <ClInclude Include="src\math\vertex.hpp" />
     <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />
     <ClInclude Include="src\systems\filesystem\CFileSystem.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_header.hpp" />
     <ClInclude Include="src\systems\input\CInputSystem.hpp" />
     <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />

@@ -13,7 +13,7 @@ public:
 	template<typename T>
 	T* GetEntityByIndex(const uint32_t nIndex);
 
-	void UpdateAllEntities();
+	void UpdateAllEntities(float flDeltaTime);
 
 private:
 	std::vector<std::unique_ptr<IBaseEntity>> m_vecEntityList;

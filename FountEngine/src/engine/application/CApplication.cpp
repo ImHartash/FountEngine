@@ -1,4 +1,6 @@
 #include "CApplication.hpp"
+#include "systems/input/CInputSystem.hpp"
+#include "systems/filesystem/CFileSystem.hpp"
 
 #define MIN_CLIENT_WINDOW_SIZE_X 500
 #define MIN_CLIENT_WINDOW_SIZE_Y 600
@@ -61,6 +63,8 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 	}
 
 	//CInputSystem::GetInstance().Initialize(m_hMainWindow);
+	CFileSystem::GetInstance().Initialize();
+	CFileSystem::GetInstance().LoadResource("simple_cube_test_c.fntmdl");
 
 	ShowWindow(m_hMainWindow, SW_SHOW);
 	UpdateWindow(m_hMainWindow);
