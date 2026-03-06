@@ -1,4 +1,5 @@
 #include "CApplication.hpp"
+#include "engine/renderer/CRenderer.hpp"
 #include "systems/input/CInputSystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
 
@@ -57,14 +58,17 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 		return false;
 	}
 
+	// Initializing systems
 	CFileSystem::GetInstance().Initialize();
 
-	m_pGraphicsContext = std::make_unique<CGraphicsContext>();
-	if (!m_pGraphicsContext->Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
+	// Initializing Other
+	if (!CGraphicsContext::GetInstance().Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
 		return false;
 	}
 
-	//CInputSystem::GetInstance().Initialize(m_hMainWindow);
+	if (!CRenderer::GetInstance().Initialize()) {
+		return false;
+	}
 
 	ShowWindow(m_hMainWindow, SW_SHOW);
 	UpdateWindow(m_hMainWindow);
@@ -84,8 +88,8 @@ int CApplication::Run() {
 		else {
 			m_AppTimer.Tick();
 			if (!m_bPaused) {
-				m_pGraphicsContext->Update(m_AppTimer.GetDeltaTime());
-				m_pGraphicsContext->Render();
+				CGraphicsContext::GetInstance().Update(m_AppTimer.GetDeltaTime());
+				CGraphicsContext::GetInstance().Render();
 			}
 			else {
 				Sleep(100);
@@ -113,7 +117,7 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_SIZE:
 		m_nClientWidth = LOWORD(lParam);
 		m_nClientHeight = HIWORD(lParam);
-		if (m_pGraphicsContext->IsValid()) {
+		if (CGraphicsContext::GetInstance().IsValid()) {
 			if (wParam == SIZE_MINIMIZED) {
 				m_bPaused = true;
 				m_bMaximized = false;
@@ -123,24 +127,24 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				m_bPaused = false;
 				m_bMinimized = false;
 				m_bMaximized = true;
-				m_pGraphicsContext->OnResize(m_nClientWidth, m_nClientHeight);
+				CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
 			}
 			else if (wParam == SIZE_RESTORED) {
 				if (m_bMinimized) {
 					m_bPaused = false;
 					m_bMinimized = false;
-					m_pGraphicsContext->OnResize(m_nClientWidth, m_nClientHeight);
+					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
 				}
 				else if (m_bMaximized) {
 					m_bPaused = false;
 					m_bMaximized = false;
-					m_pGraphicsContext->OnResize(m_nClientWidth, m_nClientHeight);
+					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
 				}
 				else if (m_bResizing) {
 					// ...
 				}
 				else {
-					m_pGraphicsContext->OnResize(m_nClientWidth, m_nClientHeight);
+					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
 				}
 			}
 		}
@@ -154,7 +158,7 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		m_bPaused = false;
 		m_bResizing = false;
 		m_AppTimer.Start();
-		m_pGraphicsContext->OnResize(m_nClientWidth, m_nClientHeight);
+		CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
 		return 0;
 	case WM_MENUCHAR:
 		return MAKELRESULT(0, MNC_CLOSE);

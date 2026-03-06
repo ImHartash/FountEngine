@@ -17,6 +17,8 @@ public:
 	ID3D11Device* GetDevice() { return m_pDevice; }
 	bool IsValid() const { return m_pDevice != nullptr; }
 
+	DirectX::XMFLOAT4X4& GetProjectionMatrix();
+
 private:
 	CGraphicsContext() = default;
 	~CGraphicsContext();

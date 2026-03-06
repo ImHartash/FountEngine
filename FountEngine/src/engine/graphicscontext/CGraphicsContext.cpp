@@ -5,6 +5,11 @@
 #include "math/defines.hpp"
 #include "utils/defines.hpp"
 
+CGraphicsContext& CGraphicsContext::GetInstance() {
+	static CGraphicsContext Instance;
+	return Instance;
+}
+
 bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
 	UINT uCreateDeviceFlags = 0;
 #ifdef _DEBUG
@@ -118,6 +123,10 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 
 	DirectX::XMMATRIX mtProjection = DirectX::XMMatrixPerspectiveFovLH(DEG_TO_RAD(75), static_cast<float>(nWidth) / nHeight, 1.f, 1000.f);
 	DirectX::XMStoreFloat4x4(&m_mtProjection, mtProjection);
+}
+
+DirectX::XMFLOAT4X4& CGraphicsContext::GetProjectionMatrix() {
+	return m_mtProjection;
 }
 
 CGraphicsContext::~CGraphicsContext() {

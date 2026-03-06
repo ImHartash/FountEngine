@@ -1,8 +1,11 @@
 #include "CRenderer.hpp"
 #include "systems/logging/CLogSystem.hpp"
+#include "systems/resourcesystem/CResourceSystem.hpp"
+#include "systems/entitysystem/CEntitySystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
 #include "utils/defines.hpp"
 #include "utils/BufferPerObject_t.hpp"
+#include "game/entitites/cubeentity/CCubeEntity.hpp"
 
 CRenderer& CRenderer::GetInstance() {
 	static CRenderer Instance;
@@ -20,20 +23,77 @@ bool CRenderer::Initialize() {
 		return false;
 	}
 
+	// !!! ONLY FOR TEST !!!
+	// Make this on scene, not here :DD
+	CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
+
+	m_PlayerCamera.SetPosition({ 0.f, 0.f, -5.f });
+
 	LOG_INFO("Renderer successfully initialized.");
 	return true;
 }
 
 void CRenderer::UpdateSceneComponents(float flDeltaTime) {
 	m_PlayerCamera.Update(flDeltaTime);
+	CEntitySystem::GetInstance().UpdateAllEntities(flDeltaTime);
 }
 
 void CRenderer::RenderScene() {
+	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
+	UINT nStride = sizeof(Vertex_t);
+	UINT nOffset = 0;
 
+	pContext->IASetVertexBuffers(
+		0,
+		1,
+		&m_pStaticVertexBuffer,
+		&nStride,
+		&nOffset
+	);
+
+	pContext->IASetIndexBuffer(
+		m_pStaticIndexBuffer,
+		DXGI_FORMAT_R32_UINT,
+		0
+	);
+
+	pContext->IASetInputLayout(m_pInputLayout);
+	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	pContext->VSSetShader(m_pVertexShader, nullptr, 0);
+	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
+
+	for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
+		CBaseModelEntity* pModelEntity = CEntitySystem::GetInstance().GetEntityByIndex<CBaseModelEntity>(nEntityIndex);
+		if (pModelEntity == nullptr)
+			continue;
+
+		RenderModel(pModelEntity);
+	}
 }
 
-void CRenderer::RenderModel(CModelResourceData* pModelResource, DirectX::XMMATRIX mtWorldMatrix) {
+void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
+	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
+	std::string strResourceData = pModelEntity->GetModelResource();
+	if (strResourceData.empty() || strResourceData == "")
+		return;
 
+	CModelResourceData* pModelResourceData = CResourceSystem::GetInstance().GetModelResourceData(strResourceData);
+	if (pModelResourceData == nullptr)
+		return;
+
+	CModelBufferInfo* pModelBufferInfo = pModelResourceData->GetModelBufferInfo();
+	if (pModelBufferInfo == nullptr)
+		return;
+
+	UpdateWorldViewProjectionBuffer(pModelEntity);
+
+	pContext->VSSetConstantBuffers(0, 1, &m_pWorldViewProjectionBuffer);
+	pContext->DrawIndexed(
+		pModelBufferInfo->nIndexCount,
+		pModelBufferInfo->nIndexOffset,
+		0
+	);
 }
 
 void CRenderer::AddToStaticBuffers(CModelResourceData* pResourceData) {
@@ -67,6 +127,7 @@ void CRenderer::AddToStaticBuffers(CModelResourceData* pResourceData) {
 }
 
 bool CRenderer::LoadShadersFromFile() {
+	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
 	ID3DBlob* pVertexShaderBlob = nullptr;
 	ID3DBlob* pPixelShaderBlob = nullptr;
 
@@ -115,6 +176,9 @@ bool CRenderer::LoadShadersFromFile() {
 
 	RELEASE_COM(pVertexShaderBlob);
 	RELEASE_COM(pPixelShaderBlob);
+
+	pContext->VSSetShader(m_pVertexShader, nullptr, 0);
+	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
 	return true;
 }
@@ -180,11 +244,41 @@ void CRenderer::UpdateBuffers() {
 	HR(pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferInitData, &m_pStaticIndexBuffer));
 }
 
-void CRenderer::UpdateWorldViewProjectionBuffer() {
+void CRenderer::UpdateWorldViewProjectionBuffer(CBaseModelEntity* pModelEntity) {
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
-	// TODO: ...
+	BufferPerObject_t WVPBuffer;
+
+	DirectX::XMMATRIX mtWorld = GetWorldMatrixFromObject(pModelEntity);
+	DirectX::XMMATRIX mtView = m_PlayerCamera.GetViewMatrix();
+	DirectX::XMMATRIX mtProjection = DirectX::XMLoadFloat4x4(&CGraphicsContext::GetInstance().GetProjectionMatrix());
+	DirectX::XMMATRIX mtWorldViewProjection = DirectX::XMMatrixTranspose(mtWorld * mtView * mtProjection);
+
+	DirectX::XMStoreFloat4x4(&WVPBuffer.mtWorldViewProjection, mtWorldViewProjection);
+
+	pContext->UpdateSubresource(
+		m_pWorldViewProjectionBuffer,
+		0, nullptr,
+		&WVPBuffer,
+		0, 0
+	);
+}
+
+DirectX::XMMATRIX CRenderer::GetWorldMatrixFromObject(CBaseModelEntity* pModelEntity) {
+	Vector3_t& vecPosition = pModelEntity->GetPosition();
+	Angle_t& vecViewAngle = pModelEntity->GetViewAngle();
+
+	DirectX::XMMATRIX mtScalingMatrix = DirectX::XMMatrixIdentity();
+	DirectX::XMMATRIX mtRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(vecViewAngle.flPitch, vecViewAngle.flYaw, vecViewAngle.flRoll);
+	DirectX::XMMATRIX mtTranslationMatrix = DirectX::XMMatrixTranslation(vecPosition.x, vecPosition.y, vecPosition.z);
+
+	return mtScalingMatrix * mtRotationMatrix * mtTranslationMatrix;
 }
 
 CRenderer::~CRenderer() {
-
+	RELEASE_COM(m_pVertexShader);
+	RELEASE_COM(m_pPixelShader);
+	RELEASE_COM(m_pStaticVertexBuffer);
+	RELEASE_COM(m_pStaticIndexBuffer);
+	RELEASE_COM(m_pWorldViewProjectionBuffer);
+	RELEASE_COM(m_pInputLayout);
 }

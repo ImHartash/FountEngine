@@ -34,8 +34,8 @@ void CCameraObject::SetRotation(const Vector3_t& vecRotation) {
 	m_vecRotation = vecRotation;
 }
 
-const DirectX::XMFLOAT4X4& CCameraObject::GetViewMatrix() const {
-	return m_mtViewMatrix;
+DirectX::XMMATRIX CCameraObject::GetViewMatrix() {
+	return DirectX::XMLoadFloat4x4(&m_mtViewMatrix);
 }
 
 const Vector3_t& CCameraObject::GetPosition() const {

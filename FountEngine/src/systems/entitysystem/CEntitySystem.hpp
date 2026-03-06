@@ -16,10 +16,11 @@ public:
 	T* GetEntityByIndex(const uint32_t nIndex);
 
 	void UpdateAllEntities(float flDeltaTime);
+	uint32_t GetMaxIndex() { return m_nMaxIndex; }
 
 private:
 	std::vector<std::unique_ptr<IBaseEntity>> m_vecEntityList;
-	uint32_t m_nMaxIndex = 1;
+	uint32_t m_nMaxIndex = 0;
 
 	CEntitySystem() = default;
 	~CEntitySystem() = default;
@@ -31,10 +32,11 @@ inline T* CEntitySystem::CreateEntity(Args&& ...args) {
 	auto pEntityPtr = std::make_unique<T>(std::forward<Args>(args)...);
 
 	IBaseEntity* pEntity = pEntityPtr.get();
-	pEntity->SetIndex(m_nMaxIndex++);
+	pEntity->SetIndex(m_nMaxIndex);
 	pEntity->OnSpawn();
 
 	m_vecEntityList.emplace_back(std::move(pEntityPtr));
+	m_nMaxIndex = static_cast<uint32_t>(m_vecEntityList.size());
 
 	return static_cast<T*>(pEntity);
 }

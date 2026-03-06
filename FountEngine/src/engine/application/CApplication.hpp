@@ -19,8 +19,6 @@ public:
 	LRESULT HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 private:
-	std::unique_ptr<CGraphicsContext> m_pGraphicsContext;
-
 	HINSTANCE m_hInstance;
 	HWND m_hMainWindow;
 

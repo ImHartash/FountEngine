@@ -4,8 +4,14 @@
 #include "systems/logging/CLogSystem.hpp"
 #include "headers/fntmdl_header.hpp"
 #include "headers/fntmdl_vertex.hpp"
+#include "engine/renderer/CRenderer.hpp"
 
 #define FNTMDL_VERSION 1
+
+CResourceSystem& CResourceSystem::GetInstance() {
+	static CResourceSystem Instance;
+	return Instance;
+}
 
 CModelResourceData* CResourceSystem::GetModelResourceData(const std::string& strModelPath) {
 	auto Iterator = m_vecModelsCache.find(strModelPath);
@@ -65,7 +71,13 @@ CModelResourceData* CResourceSystem::LoadResource(const std::string& strResource
 
 	LOG_DEBUG("Pre-Caching resource %s...", strResourcePath.c_str());
 
-	CModelResourceData PreCachedModel = CModelResourceData(std::move(vecVertices), std::move(vecFileIndices));
-	m_vecModelsCache.emplace(strResourcePath, PreCachedModel);
-	return &PreCachedModel;
+	m_vecModelsCache.emplace(
+		strResourcePath,
+		CModelResourceData(std::move(vecVertices), std::move(vecFileIndices))
+	);
+	CModelResourceData& ModelResourceData = m_vecModelsCache[strResourcePath];
+
+	CRenderer::GetInstance().AddToStaticBuffers(&ModelResourceData);
+
+	return &ModelResourceData;
 }

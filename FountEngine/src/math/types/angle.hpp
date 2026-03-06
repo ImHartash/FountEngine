@@ -20,6 +20,24 @@ struct Angle_t {
 		);
 	}
 
+	Angle_t& operator+=(const Angle_t& angOther) {
+		flPitch += angOther.flPitch;
+		flYaw += angOther.flYaw;
+		flRoll += angOther.flRoll;
+		return *this;
+	}
+
+	Angle_t& operator-=(const Angle_t& angOther) {
+		flPitch -= angOther.flPitch;
+		flYaw -= angOther.flYaw;
+		flRoll -= angOther.flRoll;
+		return *this;
+	}
+
+	Angle_t operator*(const float flScalar) const {
+		return Angle_t(flPitch * flScalar, flYaw * flScalar, flRoll * flScalar);
+	}
+
 	Vector3_t ToDegrees() const {
 		return Vector3_t(
 			RAD_TO_DEG(flPitch),

@@ -12,7 +12,7 @@ public:
 	void SetPosition(const Vector3_t& vecPosition);
 	void SetRotation(const Vector3_t& vecRotation);
 
-	const DirectX::XMFLOAT4X4& GetViewMatrix() const;
+	DirectX::XMMATRIX GetViewMatrix();
 	const Vector3_t& GetPosition() const;
 	const Vector3_t& GetRotation() const;
 

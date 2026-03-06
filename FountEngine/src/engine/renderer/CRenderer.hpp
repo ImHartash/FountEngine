@@ -3,6 +3,7 @@
 #include <d3dcompiler.h>
 #include "game/resource/modelresourcedata/CModelResourceData.hpp"
 #include "game/camera/CCameraObject.hpp"
+#include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
 
 class CRenderer {
 public:
@@ -12,7 +13,7 @@ public:
 
 	void UpdateSceneComponents(float flDeltaTime);
 	void RenderScene();
-	void RenderModel(CModelResourceData* pModelResource, DirectX::XMMATRIX mtWorldMatrix);
+	void RenderModel(CBaseModelEntity* pModelResource);
 
 	void AddToStaticBuffers(CModelResourceData* pResourceData);
 
@@ -25,7 +26,8 @@ private:
 	void SetIndexBuffer(const std::vector<uint32_t>& vecIndices);
 	void UpdateBuffers();
 
-	void UpdateWorldViewProjectionBuffer();
+	void UpdateWorldViewProjectionBuffer(CBaseModelEntity* pModelEntity);
+	DirectX::XMMATRIX GetWorldMatrixFromObject(CBaseModelEntity* pModelEntity);
 
 	ID3D11VertexShader* m_pVertexShader;
 	ID3D11PixelShader* m_pPixelShader;
@@ -41,6 +43,6 @@ private:
 
 	CCameraObject m_PlayerCamera;
 
-	CRenderer();
+	CRenderer() = default;
 	~CRenderer();
 };

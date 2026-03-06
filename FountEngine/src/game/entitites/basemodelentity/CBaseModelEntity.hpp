@@ -6,8 +6,6 @@
 
 class CBaseModelEntity : public IBaseEntity {
 public:
-	CBaseModelEntity(const std::string& strModelResource);
-
 	void Update(float flDeltaTime) override {};
 	void OnSpawn() override {};
 	void OnDestroy() override {};
@@ -15,9 +13,12 @@ public:
 	std::string GetModelResource() const { return m_strModelResource; }
 	void SetModelResource(const std::string& strModelResource) { m_strModelResource = strModelResource; }
 
-private:
+	Vector3_t& GetPosition() { return m_vecPosition; }
+	Angle_t& GetViewAngle() { return m_angViewAngle; }
+
+protected:
 	std::string m_strModelResource;
 
 	Vector3_t m_vecPosition;
-	Angle_t m_angRotation;
+	Angle_t m_angViewAngle;
 };
