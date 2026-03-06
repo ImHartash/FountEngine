@@ -1,4 +1,5 @@
 #include "CCameraObject.hpp"
+#include "systems/input/CInputSystem.hpp"
 
 CCameraObject::CCameraObject() : m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0) {
 	DirectX::XMStoreFloat4x4(&m_mtViewMatrix, DirectX::XMMatrixIdentity());
@@ -17,6 +18,26 @@ void CCameraObject::Update(float flDeltaTime) {
 
 	Vector3_t vecRight = Vector3_t(0.f, 1.0f, 0.f).Cross(vecForward).Normalize();
 	Vector3_t vecUp = vecForward.Cross(vecRight);
+
+	// Updating keys
+	if (CInputSystem::GetInstance().IsKeyDown('W')) {
+		m_vecPosition += vecForward * flDeltaTime;
+	}
+	if (CInputSystem::GetInstance().IsKeyDown('S')) {
+		m_vecPosition -= vecForward * flDeltaTime;
+	}
+	if (CInputSystem::GetInstance().IsKeyDown('A')) {
+		m_vecPosition -= vecRight * flDeltaTime;
+	}
+	if (CInputSystem::GetInstance().IsKeyDown('D')) {
+		m_vecPosition += vecRight * flDeltaTime;
+	}
+	if (CInputSystem::GetInstance().IsKeyDown(VK_SPACE)) {
+		m_vecPosition += vecUp * flDeltaTime;
+	}
+	if (CInputSystem::GetInstance().IsKeyDown(VK_CONTROL)) {
+		m_vecPosition -= vecUp * flDeltaTime;
+	}
 
 	DirectX::XMVECTOR xmPos = m_vecPosition.DXAsVector();
 	DirectX::XMVECTOR xmTarget = DirectX::XMVectorAdd(xmPos, vecForward.DXAsVector());
