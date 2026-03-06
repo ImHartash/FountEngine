@@ -155,17 +155,21 @@
   <ItemGroup>
     <ClCompile Include="src\engine\application\CApplication.cpp" />
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
+    <ClCompile Include="src\engine\renderer\CRenderer.cpp" />
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
+    <ClCompile Include="src\game\entitites\basemodelentity\CBaseModelEntity.cpp" />
     <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
     <ClCompile Include="src\systems\filesystem\CFileSystem.cpp" />
     <ClCompile Include="src\systems\input\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logging\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
+    <ClCompile Include="src\systems\resourcesystem\CResourceSystem.cpp" />
     <ClCompile Include="src\wmain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
+    <ClInclude Include="src\engine\renderer\CRenderer.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
@@ -175,11 +179,14 @@
     <ClInclude Include="src\math\vertex.hpp" />
     <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />
     <ClInclude Include="src\systems\filesystem\CFileSystem.hpp" />
-    <ClInclude Include="src\systems\filesystem\headers\fntmdl_header.hpp" />
+    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_header.hpp" />
     <ClInclude Include="src\systems\input\CInputSystem.hpp" />
     <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
+    <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp" />
+    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_vertex.hpp" />
+    <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
     <ClInclude Include="src\utils\defines.hpp" />
     <ClInclude Include="src\utils\geometrygenerator\CGeometryGenerator.hpp" />
   </ItemGroup>

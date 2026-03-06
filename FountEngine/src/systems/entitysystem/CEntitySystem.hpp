@@ -7,6 +7,8 @@
 
 class CEntitySystem {
 public:
+	static CEntitySystem& GetInstance();
+
 	template<typename T = IBaseEntity, typename... Args>
 	T* CreateEntity(Args&&... args);
 
@@ -18,10 +20,13 @@ public:
 private:
 	std::vector<std::unique_ptr<IBaseEntity>> m_vecEntityList;
 	uint32_t m_nMaxIndex = 1;
+
+	CEntitySystem() = default;
+	~CEntitySystem() = default;
 };
 
 template<typename T, typename ...Args>
-inline T* CEntitySystem::CreateEntity(Args && ...args) {
+inline T* CEntitySystem::CreateEntity(Args&& ...args) {
 	static_assert(std::is_base_of<IBaseEntity, T>::value, "Template must derive from IBaseEntity");
 	auto pEntityPtr = std::make_unique<T>(std::forward<Args>(args)...);
 
@@ -31,7 +36,7 @@ inline T* CEntitySystem::CreateEntity(Args && ...args) {
 
 	m_vecEntityList.emplace_back(std::move(pEntityPtr));
 
-	return pEntity;
+	return static_cast<T*>(pEntity);
 }
 
 template<typename T>

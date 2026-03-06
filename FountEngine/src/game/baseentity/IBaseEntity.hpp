@@ -9,9 +9,7 @@ public:
 	virtual void OnSpawn() = 0;
 	virtual void OnDestroy() = 0;
 	
-	uint32_t GetIndex() const {};
-
-protected:
+	uint32_t GetIndex() const { return m_nIndex; };
 	void SetIndex(uint32_t nIndex) { m_nIndex = nIndex; }
 
 private:

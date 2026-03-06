@@ -57,14 +57,14 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 		return false;
 	}
 
+	CFileSystem::GetInstance().Initialize();
+
 	m_pGraphicsContext = std::make_unique<CGraphicsContext>();
 	if (!m_pGraphicsContext->Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
 		return false;
 	}
 
 	//CInputSystem::GetInstance().Initialize(m_hMainWindow);
-	CFileSystem::GetInstance().Initialize();
-	CFileSystem::GetInstance().LoadResource("simple_cube_test_c.fntmdl");
 
 	ShowWindow(m_hMainWindow, SW_SHOW);
 	UpdateWindow(m_hMainWindow);
@@ -84,8 +84,8 @@ int CApplication::Run() {
 		else {
 			m_AppTimer.Tick();
 			if (!m_bPaused) {
-				m_pGraphicsContext->UpdateScene(m_AppTimer.GetDeltaTime());
-				m_pGraphicsContext->RenderScene();
+				m_pGraphicsContext->Update(m_AppTimer.GetDeltaTime());
+				m_pGraphicsContext->Render();
 			}
 			else {
 				Sleep(100);
@@ -113,7 +113,7 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_SIZE:
 		m_nClientWidth = LOWORD(lParam);
 		m_nClientHeight = HIWORD(lParam);
-		if (m_pGraphicsContext->IsValidDevice()) {
+		if (m_pGraphicsContext->IsValid()) {
 			if (wParam == SIZE_MINIMIZED) {
 				m_bPaused = true;
 				m_bMaximized = false;

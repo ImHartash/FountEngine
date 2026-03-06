@@ -6,6 +6,12 @@
 
 class CBaseModelEntity : public IBaseEntity {
 public:
+	CBaseModelEntity(const std::string& strModelResource);
+
+	void Update(float flDeltaTime) override {};
+	void OnSpawn() override {};
+	void OnDestroy() override {};
+
 	std::string GetModelResource() const { return m_strModelResource; }
 	void SetModelResource(const std::string& strModelResource) { m_strModelResource = strModelResource; }
 
