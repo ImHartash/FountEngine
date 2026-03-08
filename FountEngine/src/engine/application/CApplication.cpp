@@ -60,6 +60,7 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 
 	// Initializing systems
 	CFileSystem::GetInstance().Initialize();
+	CInputSystem::GetInstance().Initialize(m_hMainWindow);
 
 	// Initializing Other
 	if (!CGraphicsContext::GetInstance().Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
@@ -175,7 +176,14 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_KEYUP:
 		CInputSystem::GetInstance().OnKeyUp((UINT)wParam);
 		return 0;
+	case WM_LBUTTONDOWN:
+		CInputSystem::GetInstance().OnMouseDown(0x1);
+		return 0;
+	case WM_LBUTTONUP:
+		CInputSystem::GetInstance().OnMouseUp(0x1);
+		return 0;
 	case WM_INPUT:
+		CInputSystem::GetInstance().ProcessRawInput(lParam);
 		return 0;
 	}
 

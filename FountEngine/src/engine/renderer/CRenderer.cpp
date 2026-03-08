@@ -104,14 +104,14 @@ void CRenderer::AddToStaticBuffers(CModelResourceData* pResourceData) {
 
 	CModelBufferInfo* pModelBufferInfo = pResourceData->GetModelBufferInfo();
 
-	uint32_t nVertexOffset = m_vecStaticVertices.size();
-	uint32_t nIndexOffset = m_vecStaticIndices.size();
+	uint32_t nVertexOffset = static_cast<uint32_t>(m_vecStaticVertices.size());
+	uint32_t nIndexOffset = static_cast<uint32_t>(m_vecStaticIndices.size());
 
 	pModelBufferInfo->nVertexOffset = nVertexOffset;
 	pModelBufferInfo->nIndexOffset = nIndexOffset;
 
-	pModelBufferInfo->nVertexCount = pResourceData->GetModelVertices().size();
-	pModelBufferInfo->nIndexCount = pResourceData->GetModelIndices().size();
+	pModelBufferInfo->nVertexCount = static_cast<uint32_t>(pResourceData->GetModelVertices().size());
+	pModelBufferInfo->nIndexCount = static_cast<uint32_t>(pResourceData->GetModelIndices().size());
 	
 	m_vecStaticVertices.insert(
 		m_vecStaticVertices.end(),
@@ -221,7 +221,7 @@ void CRenderer::UpdateBuffers() {
 
 	D3D11_BUFFER_DESC VertexBufferDesc = {};
 	VertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	VertexBufferDesc.ByteWidth = sizeof(Vertex_t) * m_vecStaticVertices.size();
+	VertexBufferDesc.ByteWidth = static_cast <UINT>(sizeof(Vertex_t) * m_vecStaticVertices.size());
 	VertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	VertexBufferDesc.CPUAccessFlags = 0;
 	VertexBufferDesc.MiscFlags = 0;
@@ -233,7 +233,7 @@ void CRenderer::UpdateBuffers() {
 
 	D3D11_BUFFER_DESC IndexBufferDesc = {};
 	IndexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	IndexBufferDesc.ByteWidth = sizeof(uint32_t) * m_vecStaticIndices.size();
+	IndexBufferDesc.ByteWidth = static_cast <UINT>(sizeof(uint32_t) * m_vecStaticIndices.size());
 	IndexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	IndexBufferDesc.CPUAccessFlags = 0;
 	IndexBufferDesc.MiscFlags = 0;
@@ -273,6 +273,10 @@ DirectX::XMMATRIX CRenderer::GetWorldMatrixFromObject(CBaseModelEntity* pModelEn
 
 	return mtScalingMatrix * mtRotationMatrix * mtTranslationMatrix;
 }
+
+CRenderer::CRenderer() 
+	: m_pVertexShader(nullptr), m_pPixelShader(m_pPixelShader), m_pStaticVertexBuffer(nullptr), 
+	m_pStaticIndexBuffer(nullptr), m_pWorldViewProjectionBuffer(nullptr), m_pInputLayout(nullptr) {}
 
 CRenderer::~CRenderer() {
 	RELEASE_COM(m_pVertexShader);

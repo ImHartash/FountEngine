@@ -1,12 +1,21 @@
 #include "CCameraObject.hpp"
 #include "systems/input/CInputSystem.hpp"
+#include "systems/logging/CLogSystem.hpp"
 
 CCameraObject::CCameraObject() : m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0) {
 	DirectX::XMStoreFloat4x4(&m_mtViewMatrix, DirectX::XMMatrixIdentity());
 }
 
 void CCameraObject::Update(float flDeltaTime) {
-	static float flSensitivity = 1.0f;
+	static float flSensitivity = 0.002f;
+
+	if (CInputSystem::GetInstance().IsMouseButtonDown(0x1)) {
+		m_vecRotation += Vector3_t(
+			flSensitivity * CInputSystem::GetInstance().GetMouseDeltaY(),
+			-flSensitivity * CInputSystem::GetInstance().GetMouseDeltaX(), 
+			0.f
+		);
+	}
 
 	float flPitch = m_vecRotation.x;
 	float flYaw = m_vecRotation.y;

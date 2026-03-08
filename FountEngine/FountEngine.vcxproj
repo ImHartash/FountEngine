@@ -178,6 +178,7 @@
     <ClInclude Include="src\game\resource\modelbufferinfo\CModelBufferInfo.hpp" />
     <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp" />
     <ClInclude Include="src\math\defines.hpp" />
+    <ClInclude Include="src\math\random\CMathRandom.hpp" />
     <ClInclude Include="src\math\types\angle.hpp" />
     <ClInclude Include="src\math\vertex.hpp" />
     <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />

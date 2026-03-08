@@ -43,6 +43,6 @@ private:
 
 	CCameraObject m_PlayerCamera;
 
-	CRenderer() = default;
+	CRenderer();
 	~CRenderer();
 };

@@ -34,6 +34,16 @@ void CInputSystem::OnKeyUp(UINT uKey) {
 		m_vecKeys[uKey] = false;
 }
 
+void CInputSystem::OnMouseDown(UINT nMouseButton) {
+	if (nMouseButton < MOUSE_BUTTON_COUNT)
+		m_vecMouseButtons[nMouseButton] = true;
+}
+
+void CInputSystem::OnMouseUp(UINT nMouseButton) {
+	if (nMouseButton < MOUSE_BUTTON_COUNT)
+		m_vecMouseButtons[nMouseButton] = false;
+}
+
 bool CInputSystem::IsKeyDown(UINT uKey) const {
 	return uKey < KEY_COUNT && m_vecKeys[uKey];
 }
@@ -44,6 +54,18 @@ bool CInputSystem::IsKeyPressed(UINT uKey) const {
 
 bool CInputSystem::IsKeyReleased(UINT uKey) const {
 	return uKey < KEY_COUNT && !m_vecKeys[uKey] && m_vecPrevKeys[uKey];
+}
+
+bool CInputSystem::IsMouseButtonDown(UINT nKey) const {
+	return nKey < MOUSE_BUTTON_COUNT && m_vecMouseButtons[nKey];
+}
+
+bool CInputSystem::IsMouseButtonPressed(UINT nKey) const {
+	return nKey < MOUSE_BUTTON_COUNT && m_vecMouseButtons[nKey] && !m_vecPrevMouseButtons[nKey];
+}
+
+bool CInputSystem::IsMouseButtonReleased(UINT nKey) const {
+	return nKey < MOUSE_BUTTON_COUNT && !m_vecMouseButtons[nKey] && m_vecPrevMouseButtons[nKey];
 }
 
 void CInputSystem::ProcessRawInput(LPARAM lParam) {
@@ -120,6 +142,7 @@ void CInputSystem::UnlockCursor() {
 
 void CInputSystem::Update() {
 	m_vecPrevKeys = m_vecKeys;
+	m_vecPrevMouseButtons = m_vecMouseButtons;
 
 	m_flMouseDeltaX = 0.0f;
 	m_flMouseDeltaY = 0.0f;

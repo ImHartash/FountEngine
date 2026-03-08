@@ -18,5 +18,5 @@ private:
 	std::vector<Vertex_t> m_vecModelVertices;
 	std::vector<uint32_t> m_vecModelIndices;
 
-	CModelBufferInfo m_ModelBufferInfo;
+	CModelBufferInfo m_ModelBufferInfo = { 0 };
 };

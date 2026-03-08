@@ -13,5 +13,5 @@ public:
 	void SetIndex(uint32_t nIndex) { m_nIndex = nIndex; }
 
 private:
-	uint32_t m_nIndex;
+	uint32_t m_nIndex = -1;
 };

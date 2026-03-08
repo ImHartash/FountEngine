@@ -16,6 +16,9 @@ public:
 	Vector3_t& GetPosition() { return m_vecPosition; }
 	Angle_t& GetViewAngle() { return m_angViewAngle; }
 
+	void SetPosition(const Vector3_t& vecPosition) { m_vecPosition = vecPosition; }
+	void SetRotation(const Angle_t& angViewAngle) { m_angViewAngle = angViewAngle; }
+
 protected:
 	std::string m_strModelResource;
 

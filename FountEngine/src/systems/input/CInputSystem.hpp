@@ -13,9 +13,16 @@ public:
 	void OnKeyDown(UINT uKey);
 	void OnKeyUp(UINT uKey);
 
+	void OnMouseDown(UINT nMouseButton);
+	void OnMouseUp(UINT nMouseButton);
+
 	bool IsKeyDown(UINT uKey) const;
 	bool IsKeyPressed(UINT uKey) const;
 	bool IsKeyReleased(UINT uKey) const;
+
+	bool IsMouseButtonDown(UINT nKey) const;
+	bool IsMouseButtonPressed(UINT nKey) const;
+	bool IsMouseButtonReleased(UINT nKey) const;
 
 	void ProcessRawInput(LPARAM lParam);
 

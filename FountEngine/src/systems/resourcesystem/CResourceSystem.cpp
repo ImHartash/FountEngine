@@ -5,6 +5,7 @@
 #include "headers/fntmdl_header.hpp"
 #include "headers/fntmdl_vertex.hpp"
 #include "engine/renderer/CRenderer.hpp"
+#include "math/random/CMathRandom.hpp"
 
 #define FNTMDL_VERSION 1
 
@@ -65,7 +66,7 @@ CModelResourceData* CResourceSystem::LoadResource(const std::string& strResource
 	for (const auto& vertex : vecFileVertices) {
 		Vertex_t Vertex;
 		Vertex.vec3Position = { vertex.px, vertex.py, vertex.pz };
-		Vertex.vec4Color = { .5f, .5f, .5f, 1.f };
+		Vertex.vec4Color = { CMathRandom::RandF(0.f, 1.f), CMathRandom::RandF(0.f, 1.f), CMathRandom::RandF(0.f, 1.f), 1.f};
 		vecVertices.push_back(Vertex);
 	}
 
