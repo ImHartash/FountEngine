@@ -2,10 +2,11 @@
 #include "systems/logging/CLogSystem.hpp"
 #include "systems/resourcesystem/CResourceSystem.hpp"
 #include "systems/entitysystem/CEntitySystem.hpp"
+#include "systems/filesystem/CFileSystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
+#include "game/entitites/cubeentity/CCubeEntity.hpp"
 #include "utils/defines.hpp"
 #include "utils/BufferPerObject_t.hpp"
-#include "game/entitites/cubeentity/CCubeEntity.hpp"
 
 CRenderer& CRenderer::GetInstance() {
 	static CRenderer Instance;
@@ -23,9 +24,17 @@ bool CRenderer::Initialize() {
 		return false;
 	}
 
+	if (!CreateTextureSampler()) {
+		LOG_ERROR("Failed to create TextureSampler.");
+		return false;
+	}
+
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
+	CFileSystem::GetInstance().MountPakFile("fountpak01.fntpk");
 	CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
+	CCubeEntity* pEntity = CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
+	pEntity->SetPosition({4.f, 0.f, 0.f});
 
 	m_PlayerCamera.SetPosition({ 0.f, 0.f, -5.f });
 
@@ -74,25 +83,39 @@ void CRenderer::RenderScene() {
 
 void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
-	std::string strResourceData = pModelEntity->GetModelResource();
-	if (strResourceData.empty() || strResourceData == "")
+	std::string strModelResource = pModelEntity->GetModelResource();
+	std::string strTextureResource = pModelEntity->GetTextureResource();
+	if (strModelResource.empty() || strModelResource == "")
 		return;
 
-	CModelResourceData* pModelResourceData = CResourceSystem::GetInstance().GetModelResourceData(strResourceData);
+	if (strTextureResource.empty() || strTextureResource == "") {
+		// TODO: Make missing texture fallback
+		return;
+	}
+
+	CModelResourceData* pModelResourceData = CResourceSystem::GetInstance().GetResource<CModelResourceData>(strModelResource);
 	if (pModelResourceData == nullptr)
 		return;
 
-	CModelBufferInfo* pModelBufferInfo = pModelResourceData->GetModelBufferInfo();
-	if (pModelBufferInfo == nullptr)
+	CTextureResourceData* pModelTextureData = CResourceSystem::GetInstance().GetResource<CTextureResourceData>(strTextureResource);
+	if (pModelTextureData == nullptr)
 		return;
 
+	if (m_GPUCache.find(pModelResourceData) == m_GPUCache.end()) {
+		this->AddToStaticBuffers(pModelResourceData);
+	}
+
+	ModelGPUData_t& ModelBufferData = m_GPUCache[pModelResourceData];
 	UpdateWorldViewProjectionBuffer(pModelEntity);
 
+	ID3D11ShaderResourceView* pSRV = pModelTextureData->GetResourceView();
+
 	pContext->VSSetConstantBuffers(0, 1, &m_pWorldViewProjectionBuffer);
+	pContext->PSSetShaderResources(0, 1, &pSRV);
 	pContext->DrawIndexed(
-		pModelBufferInfo->nIndexCount,
-		pModelBufferInfo->nIndexOffset,
-		0
+		ModelBufferData.nIndexCount,
+		ModelBufferData.nIndexOffset,
+		ModelBufferData.nVertexOffset
 	);
 }
 
@@ -102,27 +125,28 @@ void CRenderer::AddToStaticBuffers(CModelResourceData* pResourceData) {
 		return;
 	}
 
-	CModelBufferInfo* pModelBufferInfo = pResourceData->GetModelBufferInfo();
+	ModelGPUData_t ModelBufferInfo = {};
 
 	uint32_t nVertexOffset = static_cast<uint32_t>(m_vecStaticVertices.size());
 	uint32_t nIndexOffset = static_cast<uint32_t>(m_vecStaticIndices.size());
 
-	pModelBufferInfo->nVertexOffset = nVertexOffset;
-	pModelBufferInfo->nIndexOffset = nIndexOffset;
+	ModelBufferInfo.nVertexOffset = nVertexOffset;
+	ModelBufferInfo.nIndexOffset = nIndexOffset;
 
-	pModelBufferInfo->nVertexCount = static_cast<uint32_t>(pResourceData->GetModelVertices().size());
-	pModelBufferInfo->nIndexCount = static_cast<uint32_t>(pResourceData->GetModelIndices().size());
-	
+	/*ModelBufferInfo.nVertexCount = static_cast<uint32_t>(pResourceData->GetModelVertices().size());*/
+	ModelBufferInfo.nIndexCount = static_cast<uint32_t>(pResourceData->GetIndices().size());
+
 	m_vecStaticVertices.insert(
 		m_vecStaticVertices.end(),
-		pResourceData->GetModelVertices().begin(),
-		pResourceData->GetModelVertices().end()
+		pResourceData->GetVertices().begin(),
+		pResourceData->GetVertices().end()
 	);
 
-	for (uint32_t nIndex : pResourceData->GetModelIndices()) {
+	for (uint32_t nIndex : pResourceData->GetIndices()) {
 		m_vecStaticIndices.push_back(nIndex + nVertexOffset);
 	}
 
+	m_GPUCache[pResourceData] = ModelBufferInfo;
 	this->UpdateBuffers();
 }
 
@@ -186,11 +210,12 @@ bool CRenderer::LoadShadersFromFile() {
 bool CRenderer::CreateInputLayout(ID3DBlob* pVSBlob) {
 	D3D11_INPUT_ELEMENT_DESC VertexDesc[] = {
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
 	HR(CGraphicsContext::GetInstance().GetDevice()->
-		CreateInputLayout(VertexDesc, 2, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pInputLayout));
+		CreateInputLayout(VertexDesc, 3, pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), &m_pInputLayout));
 	return true;
 }
 
@@ -205,6 +230,23 @@ bool CRenderer::CreateWorldViewProjectionBuffer() {
 	WVPBufferDesc.MiscFlags = 0;
 
 	HR(pDevice->CreateBuffer(&WVPBufferDesc, nullptr, &m_pWorldViewProjectionBuffer));
+	return true;
+}
+
+bool CRenderer::CreateTextureSampler() {
+	ID3D11Device* pDevice = CGraphicsContext::GetInstance().GetDevice();
+	ID3D11DeviceContext* pDeviceContext = CGraphicsContext::GetInstance().GetDeviceContext();
+
+	// Anisotropic Sampler. Feel free to change config..
+	D3D11_SAMPLER_DESC SamplerDesc = {};
+	SamplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	SamplerDesc.MaxAnisotropy = 4;
+	SamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	SamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	SamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+	HR(pDevice->CreateSamplerState(&SamplerDesc, &m_pTextureSampler));
+	pDeviceContext->PSSetSamplers(0, 1, &m_pTextureSampler);
 	return true;
 }
 
@@ -275,8 +317,9 @@ DirectX::XMMATRIX CRenderer::GetWorldMatrixFromObject(CBaseModelEntity* pModelEn
 }
 
 CRenderer::CRenderer() 
-	: m_pVertexShader(nullptr), m_pPixelShader(m_pPixelShader), m_pStaticVertexBuffer(nullptr), 
-	m_pStaticIndexBuffer(nullptr), m_pWorldViewProjectionBuffer(nullptr), m_pInputLayout(nullptr) {}
+	: m_pVertexShader(nullptr), m_pPixelShader(nullptr), m_pStaticVertexBuffer(nullptr),
+	m_pStaticIndexBuffer(nullptr), m_pWorldViewProjectionBuffer(nullptr), m_pInputLayout(nullptr),
+	m_pTextureSampler(nullptr) {}
 
 CRenderer::~CRenderer() {
 	RELEASE_COM(m_pVertexShader);
@@ -285,4 +328,5 @@ CRenderer::~CRenderer() {
 	RELEASE_COM(m_pStaticIndexBuffer);
 	RELEASE_COM(m_pWorldViewProjectionBuffer);
 	RELEASE_COM(m_pInputLayout);
+	RELEASE_COM(m_pTextureSampler);
 }

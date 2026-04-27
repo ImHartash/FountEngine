@@ -1,84 +1,134 @@
 #include "CResourceSystem.hpp"
-#include <fstream>
 #include "systems/filesystem/CFileSystem.hpp"
+#include "systems/filesystem/headers/fntmdl_header.hpp"
+#include "systems/filesystem/headers/fntmdl_vertex.hpp"
+#include "systems/filesystem/headers/fnttex_header.hpp"
 #include "systems/logging/CLogSystem.hpp"
-#include "headers/fntmdl_header.hpp"
-#include "headers/fntmdl_vertex.hpp"
-#include "engine/renderer/CRenderer.hpp"
-#include "math/random/CMathRandom.hpp"
-
-#define FNTMDL_VERSION 1
+#include "engine/graphicscontext/CGraphicsContext.hpp"
+#include "game/resource/modelresourcedata/CModelResourceData.hpp"
+#include "game/resource/textureresourcedata/CTextureResourceData.hpp"
+#include "math/mathutils/CMathUtils.hpp"
+#include "math/vertex.hpp"
 
 CResourceSystem& CResourceSystem::GetInstance() {
 	static CResourceSystem Instance;
 	return Instance;
 }
 
-CModelResourceData* CResourceSystem::GetModelResourceData(const std::string& strModelPath) {
-	auto Iterator = m_vecModelsCache.find(strModelPath);
-	if (Iterator != m_vecModelsCache.end())
-		return &Iterator->second;
+IResource* CResourceSystem::LoadResource(const std::string& strPath) {
+	uint32_t nMagic;
+	std::vector<char> vecFileData;
+	
+	if (!CFileSystem::GetInstance().ReadFile(strPath, vecFileData)) {
+		LOG_WARNING("Failed to load resource: resource file not found.");
+		return nullptr;
+	}
 
-	return this->LoadResource(strModelPath);
+	const char* pDataPointer = vecFileData.data();
+	memcpy(&nMagic, pDataPointer, sizeof(uint32_t));
+
+	if (nMagic == 0x464E544D) {
+		return this->LoadModel(vecFileData, strPath);
+	}
+	else if (nMagic == 0x54544E46) {
+		return this->LoadTexture(vecFileData, strPath);
+	}
+
+	LOG_WARNING("Failed to load resource: file format is not supported.");
+	return nullptr;
 }
 
-CModelResourceData* CResourceSystem::LoadResource(const std::string& strResourcePath) {
-	std::string strExtension = CFileSystem::GetInstance().GetExtension(strResourcePath);
-	if (strExtension != ".fntmdl") {
-		LOG_ERROR("Unsupported resource file. (%s)", strResourcePath.c_str());
+IResource* CResourceSystem::LoadModel(std::vector<char>& vecDataBuffer, const std::string& strResourceName) {
+	const char* pBufferPointer = vecDataBuffer.data();
+
+	FNTMDL_HEADER Header = {};
+	memcpy(&Header, pBufferPointer, sizeof(FNTMDL_HEADER));
+
+	if (Header.nVersion != SDK_VERSION) {
+		LOG_WARNING("Failed to load model: outdated model version.");
 		return nullptr;
 	}
 
-	std::string strRelativePath = CFileSystem::GetInstance().GetRelativePath(strResourcePath);
-	std::ifstream fModelBinary(strRelativePath, std::ios::binary);
-	if (!fModelBinary.is_open()) {
-		LOG_INFO("Failed to load %s: file not found or couldn't be opened.", strResourcePath.c_str());
-		return nullptr;
-	}
+	std::vector<_FNTMDL_VERTEX> vecVerticesData(Header.nVertexCount);
+	std::vector<uint32_t> vecIndicesData(Header.nIndexCount);
 
-	FNTMDL_HEADER Header{};
-	fModelBinary.read(reinterpret_cast<char*>(&Header), sizeof(FNTMDL_HEADER));
-	if (Header.nMagic != 0x464E544D) {
-		LOG_ERROR("Failed to load % s: file have invalid header(%d != %d).",
-			strResourcePath.c_str(), Header.nMagic, 0x464E544D);
-		return nullptr;
-	}
-
-	if (Header.nVersion != FNTMDL_VERSION) {
-		LOG_ERROR("Failed to load % s: file have invalid version(%d != %d).",
-			strResourcePath.c_str(), Header.nVersion, FNTMDL_VERSION);
-		return nullptr;
-	}
-
-	std::vector<_FNTMDL_VERTEX> vecFileVertices(Header.nVertexCount);
-	std::vector<uint32_t> vecFileIndices(Header.nIndexCount);
-
-	fModelBinary.seekg(Header.nVertexOffset);
-	fModelBinary.read(reinterpret_cast<char*>(vecFileVertices.data()),
-		Header.nVertexCount * sizeof(_FNTMDL_VERTEX));
-
-	fModelBinary.seekg(Header.nIndexOffset);
-	fModelBinary.read(reinterpret_cast<char*>(vecFileIndices.data()),
-		Header.nIndexCount * sizeof(uint32_t));
+	memcpy(vecVerticesData.data(), pBufferPointer + Header.nVertexOffset, vecVerticesData.size() * sizeof(_FNTMDL_VERTEX));
+	memcpy(vecIndicesData.data(), pBufferPointer + Header.nIndexOffset, vecIndicesData.size() * sizeof(uint32_t));
 
 	std::vector<Vertex_t> vecVertices;
-	vecVertices.reserve(Header.nVertexCount);
-	for (const auto& vertex : vecFileVertices) {
-		Vertex_t Vertex;
-		Vertex.vec3Position = { vertex.px, vertex.py, vertex.pz };
-		Vertex.vec4Color = { CMathRandom::RandF(0.f, 1.f), CMathRandom::RandF(0.f, 1.f), CMathRandom::RandF(0.f, 1.f), 1.f};
-		vecVertices.push_back(Vertex);
+	vecVertices.reserve(vecVerticesData.size());
+
+	for (auto& Vertex : vecVerticesData) {
+		Vertex_t FntVertex;
+		FntVertex.vec3Position = { Vertex.px, Vertex.py, Vertex.pz };
+		FntVertex.vec3Normal = { Vertex.nx, Vertex.ny, Vertex.nz };
+		FntVertex.vec2Texcoord = { Vertex.tu, Vertex.tv };
+
+		vecVertices.push_back(FntVertex);
 	}
 
-	LOG_DEBUG("Pre-Caching resource %s...", strResourcePath.c_str());
-
-	m_vecModelsCache.emplace(
-		strResourcePath,
-		CModelResourceData(std::move(vecVertices), std::move(vecFileIndices))
+	std::unique_ptr<CModelResourceData> pResourceData = std::make_unique<CModelResourceData>(
+		std::move(vecVertices), std::move(vecIndicesData)
 	);
-	CModelResourceData& ModelResourceData = m_vecModelsCache[strResourcePath];
 
-	CRenderer::GetInstance().AddToStaticBuffers(&ModelResourceData);
+	CModelResourceData* pResource = pResourceData.get();
+	m_Cache[strResourceName] = std::move(pResourceData);
+	LOG_INFO("Successfully pre-cached model.");
+	return pResource;
+}
 
-	return &ModelResourceData;
+IResource* CResourceSystem::LoadTexture(std::vector<char>& vecDataBuffer, const std::string& strResourceName) {
+	const char* pBufferPointer = vecDataBuffer.data();
+
+	FNTTEX_HEADER Header = {};
+	memcpy(&Header, pBufferPointer, sizeof(FNTTEX_HEADER));
+	if (Header.nVersion != SDK_VERSION) {
+		LOG_WARNING("Failed to load texture: version is outdated.");
+		return nullptr;
+	}
+
+	D3D11_TEXTURE2D_DESC TexDesc = {};
+	TexDesc.Width = Header.nWidth;
+	TexDesc.Height = Header.nHeight;
+	TexDesc.MipLevels = Header.nMipLevels;
+	TexDesc.ArraySize = 1;
+	TexDesc.Format = static_cast<DXGI_FORMAT>(Header.nDXFormat);
+	TexDesc.SampleDesc.Count = 1;
+	TexDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	TexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	std::vector<D3D11_SUBRESOURCE_DATA> vecInitData(Header.nMipLevels);
+	const char* pPixelData = pBufferPointer + sizeof(FNTTEX_HEADER);
+	size_t nOffset = 0;
+
+	for (uint32_t i = 0; i < Header.nMipLevels; i++) {
+		uint32_t nMipWidth = CMathUtils::Max(1u, Header.nWidth >> i);
+		uint32_t nMipHeight = CMathUtils::Max(1u, Header.nHeight >> i);
+		size_t nMipSize = static_cast<size_t>(nMipWidth) * nMipHeight * 4;
+
+		vecInitData[i].pSysMem = pPixelData + nOffset;
+		vecInitData[i].SysMemPitch = nMipWidth * 4;
+		vecInitData[i].SysMemSlicePitch = 0;
+
+		nOffset += nMipSize;
+	}
+
+	ID3D11Texture2D* pTexture = nullptr;
+	HRESULT hr = CGraphicsContext::GetInstance().GetDevice()->CreateTexture2D(&TexDesc, vecInitData.data(), &pTexture);
+	if (FAILED(hr)) return nullptr;
+
+	ID3D11ShaderResourceView* SRV = nullptr;
+	hr = CGraphicsContext::GetInstance().GetDevice()->CreateShaderResourceView(pTexture, nullptr, &SRV);
+	pTexture->Release();
+
+	if (FAILED(hr)) {
+		if (pTexture) pTexture->Release();
+		return nullptr;
+	}
+
+	std::unique_ptr<CTextureResourceData> pResourceData = std::make_unique<CTextureResourceData>(SRV);
+	CTextureResourceData* pResource = pResourceData.get();
+	m_Cache[strResourceName] = std::move(pResourceData);
+	LOG_INFO("Successfully pre-cached texture.");
+	return pResource;
 }

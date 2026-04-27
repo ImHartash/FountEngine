@@ -1,9 +1,12 @@
 #pragma once
 #include <d3d11.h>
 #include <d3dcompiler.h>
+#include <unordered_map>
 #include "game/resource/modelresourcedata/CModelResourceData.hpp"
-#include "game/camera/CCameraObject.hpp"
+#include "game/resource/textureresourcedata/CTextureResourceData.hpp"
+#include "game/resource/modelgpudata/ModelGPUData_t.hpp"
 #include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
+#include "game/camera/CCameraObject.hpp"
 
 class CRenderer {
 public:
@@ -21,6 +24,7 @@ private:
 	bool LoadShadersFromFile();
 	bool CreateInputLayout(ID3DBlob* pVSBlob);
 	bool CreateWorldViewProjectionBuffer();
+	bool CreateTextureSampler();
 
 	void SetVertexBuffer(const std::vector<Vertex_t>& vecVertices);
 	void SetIndexBuffer(const std::vector<uint32_t>& vecIndices);
@@ -40,8 +44,10 @@ private:
 	ID3D11Buffer* m_pWorldViewProjectionBuffer;
 
 	ID3D11InputLayout* m_pInputLayout;
+	ID3D11SamplerState* m_pTextureSampler;
 
 	CCameraObject m_PlayerCamera;
+	std::unordered_map<CModelResourceData*, ModelGPUData_t> m_GPUCache;
 
 	CRenderer();
 	~CRenderer();

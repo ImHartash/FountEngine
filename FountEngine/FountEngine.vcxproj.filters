@@ -54,6 +54,9 @@
     <ClCompile Include="src\game\entitites\cubeentity\CCubeEntity.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\systems\filesystem\fntpk\CFntPackFile.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -107,7 +110,7 @@
     <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_header.hpp">
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_header.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\BufferPerObject_t.hpp">
@@ -119,16 +122,37 @@
     <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_vertex.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\resource\modelbufferinfo\CModelBufferInfo.hpp">
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\math\random\CMathRandom.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\IResource.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\textureresourcedata\CTextureResourceData.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\fntpk\CFntPackFile.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\headers\fntpk_header.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\headers\fntpk_block.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\headers\fnttex_header.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\mathutils\CMathUtils.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

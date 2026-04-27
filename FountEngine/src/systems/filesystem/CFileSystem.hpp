@@ -1,15 +1,18 @@
 #pragma once
 #include <string>
+#include "fntpk/CFntPackFile.hpp"
 
 class CFileSystem {
 public:
 	static CFileSystem& GetInstance();
 
 	void Initialize();
-	std::string GetRelativePath(const std::string& strResourcePath);
-	std::string GetExtension(const std::string& strResourcePath);
+
+	void MountPakFile(const std::string& strPakPath);
+	bool ReadFile(const std::string& strFilePath, std::vector<char>& vecBufferData);
 
 private:
+	std::vector<CFntPackFile> m_FntPacks;
 	std::string m_strResourcePath;
 
 	CFileSystem() = default;

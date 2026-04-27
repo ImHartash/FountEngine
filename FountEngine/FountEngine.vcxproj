@@ -71,13 +71,13 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\output\$(Configuration)\temp\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\$(Configuration)\temp\</IntDir>
     <TargetName>application</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\output\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)\output\$(Configuration)\temp\</IntDir>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\$(Configuration)\temp\</IntDir>
     <TargetName>application</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -161,6 +161,7 @@
     <ClCompile Include="src\game\entitites\cubeentity\CCubeEntity.cpp" />
     <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
     <ClCompile Include="src\systems\filesystem\CFileSystem.cpp" />
+    <ClCompile Include="src\systems\filesystem\fntpk\CFntPackFile.cpp" />
     <ClCompile Include="src\systems\input\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logging\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
@@ -175,21 +176,28 @@
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp" />
-    <ClInclude Include="src\game\resource\modelbufferinfo\CModelBufferInfo.hpp" />
+    <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp" />
     <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp" />
+    <ClInclude Include="src\game\resource\IResource.hpp" />
+    <ClInclude Include="src\game\resource\textureresourcedata\CTextureResourceData.hpp" />
     <ClInclude Include="src\math\defines.hpp" />
+    <ClInclude Include="src\math\mathutils\CMathUtils.hpp" />
     <ClInclude Include="src\math\random\CMathRandom.hpp" />
     <ClInclude Include="src\math\types\angle.hpp" />
     <ClInclude Include="src\math\vertex.hpp" />
     <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />
     <ClInclude Include="src\systems\filesystem\CFileSystem.hpp" />
-    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_header.hpp" />
+    <ClInclude Include="src\systems\filesystem\fntpk\CFntPackFile.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_header.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntpk_block.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntpk_header.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fnttex_header.hpp" />
     <ClInclude Include="src\systems\input\CInputSystem.hpp" />
     <ClInclude Include="src\systems\logging\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
     <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp" />
-    <ClInclude Include="src\systems\resourcesystem\headers\fntmdl_vertex.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp" />
     <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
     <ClInclude Include="src\utils\defines.hpp" />
     <ClInclude Include="src\utils\geometrygenerator\CGeometryGenerator.hpp" />

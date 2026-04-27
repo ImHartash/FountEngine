@@ -1,5 +1,8 @@
 #include "CFileSystem.hpp"
 #include <filesystem>
+#include "systems/logging/CLogSystem.hpp"
+
+namespace fs = std::filesystem;
 
 CFileSystem& CFileSystem::GetInstance() {
 	static CFileSystem Instance;
@@ -11,13 +14,36 @@ void CFileSystem::Initialize() {
 	m_strResourcePath = "game/resources/";
 }
 
-std::string CFileSystem::GetRelativePath(const std::string& strResourcePath) {
-	return m_strResourcePath + strResourcePath;
+void CFileSystem::MountPakFile(const std::string& strPackPath) {
+	CFntPackFile PackFile;
+
+	fs::path FullPath = m_strResourcePath;
+	FullPath /= strPackPath;
+
+	if (PackFile.Load(FullPath.string())) {
+		m_FntPacks.push_back(std::move(PackFile));
+	}
+	else { LOG_WARNING("Failed to load .fntpk file %s", strPackPath.c_str()); }
 }
 
-std::string CFileSystem::GetExtension(const std::string& strResourcePath) {
-	size_t nDotPos = strResourcePath.find_last_of('.');
-	if (nDotPos != std::string::npos && nDotPos < strResourcePath.length() - 1)
-		return strResourcePath.substr(nDotPos);
-	return "";
+bool CFileSystem::ReadFile(const std::string& strFilePath, std::vector<char>& vecBufferData) {
+	for (auto& Pack : m_FntPacks) {
+		if (Pack.ReadFile(strFilePath, vecBufferData))
+			return true;
+	}
+
+	fs::path FullPath = m_strResourcePath;
+	FullPath /= strFilePath;
+
+	std::ifstream fin(FullPath, std::ios::binary | std::ios::ate);
+	if (!fin.is_open())
+		return false;
+
+	size_t nSize = fin.tellg();
+	fin.seekg(0);
+
+	vecBufferData.resize(nSize);
+	fin.read(vecBufferData.data(), nSize);
+
+	return true;
 }
