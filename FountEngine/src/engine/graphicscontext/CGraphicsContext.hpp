@@ -24,7 +24,7 @@ private:
 	~CGraphicsContext();
 
 	CGraphicsContext(const CGraphicsContext&) = delete;
-	CGraphicsContext operator=(const CGraphicsContext&) = delete;
+	CGraphicsContext& operator=(const CGraphicsContext&) = delete;
 
 	// Matrices
 	DirectX::XMFLOAT4X4 m_mtProjection;

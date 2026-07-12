@@ -155,6 +155,15 @@
     <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\systems\filesystem\headers\fntmat_header.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\material.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\common.hlsl" />

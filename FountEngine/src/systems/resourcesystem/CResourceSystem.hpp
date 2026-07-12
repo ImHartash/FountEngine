@@ -18,6 +18,7 @@ public:
 private:
 	IResource* LoadModel(std::vector<char>& vecDataBuffer, const std::string& strResourceName);
 	IResource* LoadTexture(std::vector<char>& vecDataBuffer, const std::string& strResourceName);
+	IResource* LoadMaterial(std::vector<char>& vecDataBuffer, const std::string& strResourceName);
 
 	std::unordered_map<std::string, std::unique_ptr<IResource>> m_Cache;
 };

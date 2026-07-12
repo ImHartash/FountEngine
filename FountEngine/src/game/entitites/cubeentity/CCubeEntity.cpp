@@ -4,10 +4,10 @@
 
 void CCubeEntity::OnSpawn() {
 	LOG_INFO("Spawning Test Cube.");
-	CResourceSystem::GetInstance().LoadResource("models/simple_cube_test_c.fntmdl");
-	CResourceSystem::GetInstance().LoadResource("textures/simple_cube_test_c.fnttex");
-	this->SetModelResource("models/simple_cube_test_c.fntmdl");
-	this->SetTextureResource("textures/simple_cube_test_c.fnttex");
+	CResourceSystem::GetInstance().LoadResource("materials/test_cube.fntmat");
+	CResourceSystem::GetInstance().LoadResource("models/test_cube.fntmdl");
+	this->SetMaterialResource("materials/test_cube.fntmat");
+	this->SetModelResource("models/test_cube.fntmdl");
 }
 
 void CCubeEntity::Update(float flDeltaTime) {

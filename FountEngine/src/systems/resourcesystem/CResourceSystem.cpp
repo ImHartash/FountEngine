@@ -3,10 +3,12 @@
 #include "systems/filesystem/headers/fntmdl_header.hpp"
 #include "systems/filesystem/headers/fntmdl_vertex.hpp"
 #include "systems/filesystem/headers/fnttex_header.hpp"
+#include "systems/filesystem/headers/fntmat_header.hpp"
 #include "systems/logging/CLogSystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
 #include "game/resource/modelresourcedata/CModelResourceData.hpp"
 #include "game/resource/textureresourcedata/CTextureResourceData.hpp"
+#include "game/resource/materialresourcedata/CMaterialResourceData.hpp"
 #include "math/mathutils/CMathUtils.hpp"
 #include "math/vertex.hpp"
 
@@ -20,21 +22,24 @@ IResource* CResourceSystem::LoadResource(const std::string& strPath) {
 	std::vector<char> vecFileData;
 	
 	if (!CFileSystem::GetInstance().ReadFile(strPath, vecFileData)) {
-		LOG_WARNING("Failed to load resource: resource file not found.");
+		LOG_WARNING("Failed to load %s: resource file not found.", strPath.c_str());
 		return nullptr;
 	}
 
 	const char* pDataPointer = vecFileData.data();
 	memcpy(&nMagic, pDataPointer, sizeof(uint32_t));
 
-	if (nMagic == 0x464E544D) {
+	if (nMagic == 0x4D544E46) { // FNTM (Model)
 		return this->LoadModel(vecFileData, strPath);
 	}
-	else if (nMagic == 0x54544E46) {
+	else if (nMagic == 0x54544E46) { // FNTT (Texture)
 		return this->LoadTexture(vecFileData, strPath);
 	}
+	else if (nMagic == 0x544D5446) { // FTMT (Material)
+		return this->LoadMaterial(vecFileData, strPath);
+	}
 
-	LOG_WARNING("Failed to load resource: file format is not supported.");
+	LOG_WARNING("Failed to load %s: file format is not supported.", strPath.c_str());
 	return nullptr;
 }
 
@@ -45,7 +50,7 @@ IResource* CResourceSystem::LoadModel(std::vector<char>& vecDataBuffer, const st
 	memcpy(&Header, pBufferPointer, sizeof(FNTMDL_HEADER));
 
 	if (Header.nVersion != SDK_VERSION) {
-		LOG_WARNING("Failed to load model: outdated model version.");
+		LOG_WARNING("Failed to load %s: version is outdated.", strResourceName.c_str());
 		return nullptr;
 	}
 
@@ -73,7 +78,7 @@ IResource* CResourceSystem::LoadModel(std::vector<char>& vecDataBuffer, const st
 
 	CModelResourceData* pResource = pResourceData.get();
 	m_Cache[strResourceName] = std::move(pResourceData);
-	LOG_INFO("Successfully pre-cached model.");
+	LOG_INFO("Successfully pre-cached %s.", strResourceName.c_str());
 	return pResource;
 }
 
@@ -83,7 +88,7 @@ IResource* CResourceSystem::LoadTexture(std::vector<char>& vecDataBuffer, const 
 	FNTTEX_HEADER Header = {};
 	memcpy(&Header, pBufferPointer, sizeof(FNTTEX_HEADER));
 	if (Header.nVersion != SDK_VERSION) {
-		LOG_WARNING("Failed to load texture: version is outdated.");
+		LOG_WARNING("Failed to load %s: version is outdated.", strResourceName.c_str());
 		return nullptr;
 	}
 
@@ -122,13 +127,45 @@ IResource* CResourceSystem::LoadTexture(std::vector<char>& vecDataBuffer, const 
 	pTexture->Release();
 
 	if (FAILED(hr)) {
-		if (pTexture) pTexture->Release();
+		LOG_WARNING("Failed to load %s: DX function `CreateShaderResourceView` failed.", strResourceName.c_str());
 		return nullptr;
 	}
 
 	std::unique_ptr<CTextureResourceData> pResourceData = std::make_unique<CTextureResourceData>(SRV);
 	CTextureResourceData* pResource = pResourceData.get();
 	m_Cache[strResourceName] = std::move(pResourceData);
-	LOG_INFO("Successfully pre-cached texture.");
+	LOG_INFO("Successfully pre-cached %s.", strResourceName.c_str());
+	return pResource;
+}
+
+IResource* CResourceSystem::LoadMaterial(std::vector<char>& vecDataBuffer, const std::string& strResourceName) {
+	const char* pBufferPointer = vecDataBuffer.data();
+
+	FNTMAT_HEADER Header = {};
+	memcpy(&Header, pBufferPointer, sizeof(FNTMAT_HEADER));
+	if (Header.nVersion != SDK_VERSION) {
+		LOG_WARNING("Failed to load %s: version is outdated.", strResourceName.c_str());
+		return nullptr;
+	}
+
+	FNTMAT_DATA MaterialData = {};
+	memcpy(&MaterialData, pBufferPointer + sizeof(FNTMAT_HEADER), sizeof(FNTMAT_DATA));
+
+	std::string strDiffuseTexture = std::string(MaterialData.szDiffuseTexture);
+	if (m_Cache.find(strDiffuseTexture) == m_Cache.end()) {
+		this->LoadResource(strDiffuseTexture);
+	}
+
+	std::unique_ptr<CMaterialResourceData> pResourceData = std::make_unique<CMaterialResourceData>(
+		strDiffuseTexture,
+		Vector3_t(MaterialData.flAmbient), Vector3_t(MaterialData.flDiffuse), Vector3_t(MaterialData.flSpecular),
+		MaterialData.flShininess, MaterialData.flOpacity,
+		static_cast<EMaterialBlendMode>(MaterialData.nBlendMode),
+		static_cast<EMaterialCullMode>(MaterialData.nCullMode),
+		static_cast<EMaterialDepthMode>(MaterialData.nDepthMode)
+	);
+	CMaterialResourceData* pResource = pResourceData.get();
+	m_Cache[strResourceName] = std::move(pResourceData);
+	LOG_INFO("Successfully pre-cached %s.", strResourceName.c_str());
 	return pResource;
 }

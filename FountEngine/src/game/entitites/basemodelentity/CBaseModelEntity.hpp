@@ -13,8 +13,8 @@ public:
 	std::string GetModelResource() const { return m_strModelResource; }
 	void SetModelResource(const std::string& strModelResource) { m_strModelResource = strModelResource; }
 
-	std::string GetTextureResource() const { return m_strTextureResource; }
-	void SetTextureResource(const std::string& strTextureResource) { m_strTextureResource = strTextureResource; }
+	std::string GetMaterialResource() const { return m_strMaterialResource; }
+	void SetMaterialResource(const std::string& strMaterialResource) { m_strMaterialResource = strMaterialResource; }
 
 	Vector3_t& GetPosition() { return m_vecPosition; }
 	Angle_t& GetViewAngle() { return m_angViewAngle; }
@@ -23,8 +23,8 @@ public:
 	void SetRotation(const Angle_t& angViewAngle) { m_angViewAngle = angViewAngle; }
 
 protected:
+	std::string m_strMaterialResource;
 	std::string m_strModelResource;
-	std::string m_strTextureResource;
 
 	Vector3_t m_vecPosition;
 	Angle_t m_angViewAngle;

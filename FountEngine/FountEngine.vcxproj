@@ -172,10 +172,12 @@
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
     <ClInclude Include="src\engine\renderer\CRenderer.hpp" />
+    <ClInclude Include="src\enums\material.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp" />
+    <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp" />
     <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp" />
     <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp" />
     <ClInclude Include="src\game\resource\IResource.hpp" />
@@ -188,6 +190,7 @@
     <ClInclude Include="src\systems\entitysystem\CEntitySystem.hpp" />
     <ClInclude Include="src\systems\filesystem\CFileSystem.hpp" />
     <ClInclude Include="src\systems\filesystem\fntpk\CFntPackFile.hpp" />
+    <ClInclude Include="src\systems\filesystem\headers\fntmat_header.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntmdl_header.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntpk_block.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntpk_header.hpp" />

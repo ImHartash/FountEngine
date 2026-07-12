@@ -6,6 +6,7 @@ struct Vector3_t {
 
 	Vector3_t() : x(0.0f), y(0.0f), z(0.0f) {}
 	Vector3_t(float flX, float flY, float flZ) : x(flX), y(flY), z(flZ) {}
+	Vector3_t(const float (&flVector)[3]) : x(flVector[0]), y(flVector[1]), z(flVector[2]) {}
 
 	Vector3_t& operator+=(const Vector3_t& vecOther) {
 		x += vecOther.x;
