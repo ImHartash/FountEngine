@@ -84,21 +84,32 @@ void CRenderer::RenderScene() {
 void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
 	std::string strModelResource = pModelEntity->GetModelResource();
-	std::string strTextureResource = pModelEntity->GetTextureResource();
+	std::string strMaterialResource = pModelEntity->GetMaterialResource();
 	if (strModelResource.empty() || strModelResource == "")
 		return;
 
-	if (strTextureResource.empty() || strTextureResource == "") {
+	if (strMaterialResource.empty() || strMaterialResource == "") {
 		// TODO: Make missing texture fallback
 		return;
 	}
 
-	CModelResourceData* pModelResourceData = CResourceSystem::GetInstance().GetResource<CModelResourceData>(strModelResource);
+	CModelResourceData* pModelResourceData 
+		= CResourceSystem::GetInstance().GetResource<CModelResourceData>(strModelResource);
 	if (pModelResourceData == nullptr)
 		return;
 
-	CTextureResourceData* pModelTextureData = CResourceSystem::GetInstance().GetResource<CTextureResourceData>(strTextureResource);
-	if (pModelTextureData == nullptr)
+	CMaterialResourceData* pMaterialData 
+		= CResourceSystem::GetInstance().GetResource<CMaterialResourceData>(strMaterialResource);
+	if (pMaterialData == nullptr)
+		return;
+
+	std::string strTextureResource = pMaterialData->GetDiffuseTexture();
+	if (strTextureResource.empty() || strTextureResource == "")
+		return;
+
+	CTextureResourceData* pTextureData
+		= CResourceSystem::GetInstance().GetResource<CTextureResourceData>(strTextureResource);
+	if (pTextureData == nullptr)
 		return;
 
 	if (m_GPUCache.find(pModelResourceData) == m_GPUCache.end()) {
@@ -108,7 +119,7 @@ void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
 	ModelGPUData_t& ModelBufferData = m_GPUCache[pModelResourceData];
 	UpdateWorldViewProjectionBuffer(pModelEntity);
 
-	ID3D11ShaderResourceView* pSRV = pModelTextureData->GetResourceView();
+	ID3D11ShaderResourceView* pSRV = pTextureData->GetResourceView();
 
 	pContext->VSSetConstantBuffers(0, 1, &m_pWorldViewProjectionBuffer);
 	pContext->PSSetShaderResources(0, 1, &pSRV);

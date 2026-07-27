@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "game/resource/modelresourcedata/CModelResourceData.hpp"
 #include "game/resource/textureresourcedata/CTextureResourceData.hpp"
+#include "game/resource/materialresourcedata/CMaterialResourceData.hpp"
 #include "game/resource/modelgpudata/ModelGPUData_t.hpp"
 #include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
 #include "game/camera/CCameraObject.hpp"
