@@ -1,5 +1,6 @@
 #include "CRenderer.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 #include "systems/resourcesystem/CResourceSystem.hpp"
 #include "systems/entitysystem/CEntitySystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
@@ -31,9 +32,9 @@ bool CRenderer::Initialize() {
 
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
-	CFileSystem::GetInstance().MountPakFile("fountpak01.fntpk");
-	CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
-	CCubeEntity* pEntity = CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
+	g_pFileSystem->MountPakFile("fountpak01.fntpk");
+	g_pEntitySystem->CreateEntity<CCubeEntity>();
+	CCubeEntity* pEntity = g_pEntitySystem->CreateEntity<CCubeEntity>();
 	pEntity->SetPosition({4.f, 0.f, 0.f});
 
 	m_PlayerCamera.SetPosition({ 0.f, 0.f, -5.f });
@@ -44,7 +45,14 @@ bool CRenderer::Initialize() {
 
 void CRenderer::UpdateSceneComponents(float flDeltaTime) {
 	m_PlayerCamera.Update(flDeltaTime);
-	CEntitySystem::GetInstance().UpdateAllEntities(flDeltaTime);
+	g_pEntitySystem->UpdateAllEntities(flDeltaTime);
+}
+
+void CRenderer::PrepareFrame() {
+	m_vecOpaqueRenderList.clear();
+	m_vecTransparentRenderList.clear();
+
+
 }
 
 void CRenderer::RenderScene() {
@@ -72,13 +80,13 @@ void CRenderer::RenderScene() {
 	pContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
-	for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
+	/*for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
 		CBaseModelEntity* pModelEntity = CEntitySystem::GetInstance().GetEntityByIndex<CBaseModelEntity>(nEntityIndex);
 		if (pModelEntity == nullptr)
 			continue;
 
 		RenderModel(pModelEntity);
-	}
+	}*/
 }
 
 void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
@@ -94,12 +102,12 @@ void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
 	}
 
 	CModelResourceData* pModelResourceData 
-		= CResourceSystem::GetInstance().GetResource<CModelResourceData>(strModelResource);
+		= g_pResourceSystem->GetResource<CModelResourceData>(strModelResource);
 	if (pModelResourceData == nullptr)
 		return;
 
 	CMaterialResourceData* pMaterialData 
-		= CResourceSystem::GetInstance().GetResource<CMaterialResourceData>(strMaterialResource);
+		= g_pResourceSystem->GetResource<CMaterialResourceData>(strMaterialResource);
 	if (pMaterialData == nullptr)
 		return;
 
@@ -108,7 +116,7 @@ void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
 		return;
 
 	CTextureResourceData* pTextureData
-		= CResourceSystem::GetInstance().GetResource<CTextureResourceData>(strTextureResource);
+		= g_pResourceSystem->GetResource<CTextureResourceData>(strTextureResource);
 	if (pTextureData == nullptr)
 		return;
 

@@ -1,5 +1,6 @@
 #include "CGraphicsContext.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 #include "systems/entitysystem/CEntitySystem.hpp"
 #include "engine/renderer/CRenderer.hpp"
 #include "math/defines.hpp"

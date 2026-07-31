@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "engine/application/CApplication.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 
 int WINAPI WinMain(
 	_In_ HINSTANCE hInstance, 
@@ -8,9 +9,13 @@ int WINAPI WinMain(
 	_In_ PSTR pCmdLine, 
 	_In_ int nCmdShow) 
 {
-	CLogSystem& LogSystem = CLogSystem::GetInstance();
-	if (!LogSystem.Initialize("FountEngine_Latest.log")) {
-		MessageBox(0, L"Failed to initialize log system!", L"Initialization Error", 0);
+	if (!CSystemManager::GetInstance().Initialize()) {
+		MessageBox(0, L"Failed to initialize CSystemManager!", L"Initialization Error", 0);
+		return -1;
+	}
+
+	if (!g_pLogSystem->Initialize("FountEngine_Latest.log")) {
+		MessageBox(0, L"Failed to initialize CLogSystem!", L"Initialization Error", 0);
 		return -1;
 	}
 	

@@ -9,6 +9,13 @@
 #include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
 #include "game/camera/CCameraObject.hpp"
 
+struct RenderItem_t {
+	CBaseModelEntity* pEntity;
+	CModelResourceData* pModel;
+	CMaterialResourceData* pMaterial;
+	float flDistanceSq;
+};
+
 class CRenderer {
 public:
 	static CRenderer& GetInstance();
@@ -16,6 +23,7 @@ public:
 	bool Initialize();
 
 	void UpdateSceneComponents(float flDeltaTime);
+	void PrepareFrame();
 	void RenderScene();
 	void RenderModel(CBaseModelEntity* pModelResource);
 
@@ -39,6 +47,9 @@ private:
 
 	std::vector<Vertex_t> m_vecStaticVertices;
 	std::vector<uint32_t> m_vecStaticIndices;
+
+	std::vector<RenderItem_t> m_vecOpaqueRenderList;
+	std::vector<RenderItem_t> m_vecTransparentRenderList;
 
 	ID3D11Buffer* m_pStaticVertexBuffer;
 	ID3D11Buffer* m_pStaticIndexBuffer;

@@ -1,16 +1,11 @@
 #include "CInputSystem.hpp"
 #include <windowsx.h>
 
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 
 // UNDER THE DEVELOPING
 // I'LL DO THIS LATER/
 // - ImHartash :D
-
-CInputSystem& CInputSystem::GetInstance() {
-	static CInputSystem Instance;
-	return Instance;
-}
 
 void CInputSystem::Initialize(HWND hWnd) {
 	m_hWnd = hWnd;

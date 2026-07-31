@@ -1,13 +1,9 @@
 #include "CFileSystem.hpp"
 #include <filesystem>
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 
 namespace fs = std::filesystem;
-
-CFileSystem& CFileSystem::GetInstance() {
-	static CFileSystem Instance;
-	return Instance;
-}
 
 void CFileSystem::Initialize() {
 	std::filesystem::create_directory("game/resources");

@@ -1,6 +1,8 @@
 #include "CApplication.hpp"
 #include "engine/renderer/CRenderer.hpp"
-#include "systems/input/CInputSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/entitysystem/CEntitySystem.hpp"
+#include "systems/inputsystem/CInputSystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
 
 #define MIN_CLIENT_WINDOW_SIZE_X 500
@@ -59,8 +61,9 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 	}
 
 	// Initializing systems
-	CFileSystem::GetInstance().Initialize();
-	CInputSystem::GetInstance().Initialize(m_hMainWindow);
+	g_pFileSystem->Initialize();
+	g_pInputSystem->Initialize(m_hMainWindow);
+	g_pEntitySystem->Initialize();
 
 	// Initializing Other
 	if (!CGraphicsContext::GetInstance().Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
@@ -96,7 +99,7 @@ int CApplication::Run() {
 				Sleep(100);
 			}
 
-			CInputSystem::GetInstance().Update();
+			g_pInputSystem->Update();
 		}
 	}
 
@@ -171,19 +174,19 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		PostQuitMessage(0);
 		return 0;
 	case WM_KEYDOWN:
-		CInputSystem::GetInstance().OnKeyDown((UINT)wParam);
+		g_pInputSystem->OnKeyDown((UINT)wParam);
 		return 0;
 	case WM_KEYUP:
-		CInputSystem::GetInstance().OnKeyUp((UINT)wParam);
+		g_pInputSystem->OnKeyUp((UINT)wParam);
 		return 0;
 	case WM_LBUTTONDOWN:
-		CInputSystem::GetInstance().OnMouseDown(0x1);
+		g_pInputSystem->OnMouseDown(0x1);
 		return 0;
 	case WM_LBUTTONUP:
-		CInputSystem::GetInstance().OnMouseUp(0x1);
+		g_pInputSystem->OnMouseUp(0x1);
 		return 0;
 	case WM_INPUT:
-		CInputSystem::GetInstance().ProcessRawInput(lParam);
+		g_pInputSystem->ProcessRawInput(lParam);
 		return 0;
 	}
 

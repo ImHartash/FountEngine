@@ -1,10 +1,11 @@
 #include "CResourceSystem.hpp"
+#include "systems/CSystemManager.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
 #include "systems/filesystem/headers/fntmdl_header.hpp"
 #include "systems/filesystem/headers/fntmdl_vertex.hpp"
 #include "systems/filesystem/headers/fnttex_header.hpp"
 #include "systems/filesystem/headers/fntmat_header.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
 #include "game/resource/modelresourcedata/CModelResourceData.hpp"
 #include "game/resource/textureresourcedata/CTextureResourceData.hpp"
@@ -12,16 +13,11 @@
 #include "math/mathutils/CMathUtils.hpp"
 #include "math/vertex.hpp"
 
-CResourceSystem& CResourceSystem::GetInstance() {
-	static CResourceSystem Instance;
-	return Instance;
-}
-
 IResource* CResourceSystem::LoadResource(const std::string& strPath) {
 	uint32_t nMagic;
 	std::vector<char> vecFileData;
 	
-	if (!CFileSystem::GetInstance().ReadFile(strPath, vecFileData)) {
+	if (!g_pFileSystem->ReadFile(strPath, vecFileData)) {
 		LOG_WARNING("Failed to load %s: resource file not found.", strPath.c_str());
 		return nullptr;
 	}

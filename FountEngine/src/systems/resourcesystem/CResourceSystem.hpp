@@ -9,7 +9,8 @@
 
 class CResourceSystem {
 public:
-	static CResourceSystem& GetInstance();
+	CResourceSystem() = default;
+	~CResourceSystem() = default;
 
 	template<typename T>
 	T* GetResource(const std::string& strResourceName);
