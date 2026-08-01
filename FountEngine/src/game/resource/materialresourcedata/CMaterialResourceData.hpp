@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include "../IResource.hpp"
+#include "../CResourceHandle.hpp"
 #include "enums/material.hpp"
 #include "math/types/vector3.hpp"
 
@@ -8,7 +9,7 @@ class CMaterialResourceData : public IResource {
 public:
 	CMaterialResourceData() = default;
 	CMaterialResourceData(
-		std::string strDiffuseTexture,
+		CResourceHandle hDiffuseTexture,
 		const Vector3_t& vecAmbient,
 		const Vector3_t& vecDiffuse,
 		const Vector3_t& vecSpecular,
@@ -18,13 +19,15 @@ public:
 		EMaterialCullMode CullMode,
 		EMaterialDepthMode DepthMode
 	)
-		: m_strDiffuseTexture(std::move(strDiffuseTexture)),
+		: m_hDiffuseTexture(hDiffuseTexture),
 		m_vecAmbient(vecAmbient), m_vecDiffuse(vecDiffuse), m_vecSpecular(vecSpecular),
 		m_flShininess(flShininess), m_flOpacity(flOpacity),
 		m_BlendMode(BlendMode), m_CullMode(CullMode), m_DepthMode(DepthMode) {
 	}
 
-	const std::string& GetDiffuseTexture() const { return m_strDiffuseTexture; }
+	~CMaterialResourceData();
+
+	const CResourceHandle& GetDiffuseTexture() const { return m_hDiffuseTexture; }
 
 	const Vector3_t& GetAmbient() const { return m_vecAmbient; }
 	const Vector3_t& GetDiffuse() const { return m_vecDiffuse; }
@@ -38,7 +41,7 @@ public:
 	EMaterialDepthMode GetDepthMode() const { return m_DepthMode; }
 
 private:
-	std::string m_strDiffuseTexture;
+	CResourceHandle m_hDiffuseTexture;
 
 	Vector3_t m_vecAmbient;
 	Vector3_t m_vecDiffuse;

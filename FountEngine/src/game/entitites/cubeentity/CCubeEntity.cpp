@@ -5,8 +5,6 @@
 
 void CCubeEntity::OnSpawn() {
 	LOG_INFO("Spawning Test Cube.");
-	g_pResourceSystem->LoadResource("materials/test_cube.fntmat");
-	g_pResourceSystem->LoadResource("models/test_cube.fntmdl");
 	this->SetMaterialResource("materials/test_cube.fntmat");
 	this->SetModelResource("models/test_cube.fntmdl");
 }

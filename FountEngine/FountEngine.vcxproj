@@ -159,6 +159,7 @@
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
     <ClCompile Include="src\game\entitites\basemodelentity\CBaseModelEntity.cpp" />
     <ClCompile Include="src\game\entitites\cubeentity\CCubeEntity.cpp" />
+    <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp" />
     <ClCompile Include="src\systems\CSystemManager.cpp" />
     <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
     <ClCompile Include="src\systems\filesystem\CFileSystem.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp" />
+    <ClInclude Include="src\game\resource\CResourceHandle.hpp" />
     <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp" />
     <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp" />
     <ClInclude Include="src\game\resource\modelresourcedata\CModelResourceData.hpp" />

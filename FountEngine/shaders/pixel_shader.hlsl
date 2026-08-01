@@ -2,5 +2,8 @@
 
 float4 FntPixelShader(VertexOut pIn) : SV_TARGET
 {
-    return gTexture.Sample(gSampler, pIn.flTexcoord);
+    float4 fl4PixelColor = gTexture.Sample(gSampler, pIn.flTexcoord);
+    fl4PixelColor.a *= gMaterial.flMaterialOpacity;
+    
+    return fl4PixelColor;
 }

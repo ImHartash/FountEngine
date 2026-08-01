@@ -1,7 +1,6 @@
 #pragma once
 #include <cassert>
 #include <intrin.h>
-#include "systems/logging/CLogSystem.hpp"
 
 #define RELEASE_COM(x) if (x) { x->Release(); x = 0; }
 

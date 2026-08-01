@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "game/resource/CResourceHandle.hpp"
 #include "game/baseentity/IBaseEntity.hpp"
 #include "math/types/vector3.hpp"
 #include "math/types/angle.hpp"
@@ -10,11 +11,11 @@ public:
 	void OnSpawn() override {};
 	void OnDestroy() override {};
 
-	std::string GetModelResource() const { return m_strModelResource; }
-	void SetModelResource(const std::string& strModelResource) { m_strModelResource = strModelResource; }
+	CResourceHandle GetModelResource() const { return m_hModelResource; }
+	void SetModelResource(const std::string& strModelResource);
 
-	std::string GetMaterialResource() const { return m_strMaterialResource; }
-	void SetMaterialResource(const std::string& strMaterialResource) { m_strMaterialResource = strMaterialResource; }
+	CResourceHandle GetMaterialResource() const { return m_hMaterialResource; }
+	void SetMaterialResource(const std::string& strMaterialResource);
 
 	Vector3_t& GetPosition() { return m_vecPosition; }
 	Angle_t& GetViewAngle() { return m_angViewAngle; }
@@ -23,8 +24,8 @@ public:
 	void SetRotation(const Angle_t& angViewAngle) { m_angViewAngle = angViewAngle; }
 
 protected:
-	std::string m_strMaterialResource;
-	std::string m_strModelResource;
+	CResourceHandle m_hModelResource;
+	CResourceHandle m_hMaterialResource;
 
 	Vector3_t m_vecPosition;
 	Angle_t m_angViewAngle;

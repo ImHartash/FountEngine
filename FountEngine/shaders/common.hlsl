@@ -1,6 +1,19 @@
-cbuffer MatrixBuffer : register(b0)
+struct Material
 {
-    matrix WorldViewProjectionMatrix;
+    float3 fl3MaterialAmbient;
+    float flMaterialShininess;
+    
+    float3 fl3MaterialDiffuse;
+    float flMaterialOpacity;
+    
+    float3 fl3MaterialSpecular;
+    float _flPad0;
+};
+
+cbuffer cbPerObject : register(b0)
+{
+    matrix gWorldViewProjectionMatrix;
+    Material gMaterial;
 }
 
 Texture2D gTexture : register(t0);

@@ -59,6 +59,7 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
 		return false;
 	}
 
+	CreateRenderStates();
 	OnResize(nWidth, nHeight);
 	return true;
 }
@@ -75,6 +76,7 @@ void CGraphicsContext::Render() {
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, aClearColor);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
+	CRenderer::GetInstance().PrepareFrame();
 	CRenderer::GetInstance().RenderScene();
 
 	HR(m_pSwapChain->Present(0, 0));
@@ -126,6 +128,15 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	DirectX::XMStoreFloat4x4(&m_mtProjection, mtProjection);
 }
 
+void CGraphicsContext::ApplyMaterialStates(EMaterialBlendMode BlendMode, 
+	EMaterialCullMode CullMode, EMaterialDepthMode DepthMode) 
+{
+	const float arrBlendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+	m_pDeviceContext->OMSetBlendState(m_pBlendStates[static_cast<int32_t>(BlendMode)], arrBlendFactor, 0xFFFFFFFF);
+	m_pDeviceContext->OMSetDepthStencilState(m_pDepthStates[static_cast<int32_t>(DepthMode)], 0);
+	m_pDeviceContext->RSSetState(m_pRasterStates[static_cast<int32_t>(CullMode)]);
+}
+
 DirectX::XMFLOAT4X4& CGraphicsContext::GetProjectionMatrix() {
 	return m_mtProjection;
 }
@@ -138,4 +149,69 @@ CGraphicsContext::~CGraphicsContext() {
 	RELEASE_COM(m_pSwapChain);
 	RELEASE_COM(m_pDeviceContext);
 	RELEASE_COM(m_pDevice);
+
+	for (int i = 0; i < 3; i++) {
+		RELEASE_COM(m_pBlendStates[i]);
+		RELEASE_COM(m_pDepthStates[i]);
+		RELEASE_COM(m_pRasterStates[i]);
+	}
+}
+
+void CGraphicsContext::CreateRenderStates() {
+	// --- Blend states ---
+	D3D11_BLEND_DESC OpaqueDesc = {};
+	OpaqueDesc.RenderTarget[0].BlendEnable = false;
+	OpaqueDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	HR(m_pDevice->CreateBlendState(&OpaqueDesc, &m_pBlendStates[static_cast<int>(EMaterialBlendMode::Opaque)]));
+
+	D3D11_BLEND_DESC AlphaDesc = {};
+	AlphaDesc.RenderTarget[0].BlendEnable = true;
+	AlphaDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	AlphaDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	AlphaDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	AlphaDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	AlphaDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	AlphaDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	AlphaDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	HR(m_pDevice->CreateBlendState(&AlphaDesc, &m_pBlendStates[static_cast<int>(EMaterialBlendMode::AlphaBlend)]));
+
+	D3D11_BLEND_DESC AddDesc = {};
+	AddDesc.RenderTarget[0].BlendEnable = true;
+	AddDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	AddDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	AddDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	AddDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	AddDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	AddDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	AddDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	HR(m_pDevice->CreateBlendState(&AddDesc, &m_pBlendStates[static_cast<int>(EMaterialBlendMode::Additive)]));
+
+	// --- Depth states ---
+	D3D11_DEPTH_STENCIL_DESC EnabledDesc = {};
+	EnabledDesc.DepthEnable = true;
+	EnabledDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	EnabledDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	HR(m_pDevice->CreateDepthStencilState(&EnabledDesc, &m_pDepthStates[static_cast<int>(EMaterialDepthMode::Enabled)]));
+
+	D3D11_DEPTH_STENCIL_DESC ReadOnlyDesc = EnabledDesc;
+	ReadOnlyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	HR(m_pDevice->CreateDepthStencilState(&ReadOnlyDesc, &m_pDepthStates[static_cast<int>(EMaterialDepthMode::ReadOnly)]));
+
+	D3D11_DEPTH_STENCIL_DESC DisabledDesc = {};
+	DisabledDesc.DepthEnable = false;
+	HR(m_pDevice->CreateDepthStencilState(&DisabledDesc, &m_pDepthStates[static_cast<int>(EMaterialDepthMode::Disabled)]));
+
+	// --- Rasterizer states (cull modes) ---
+	D3D11_RASTERIZER_DESC BackDesc = {};
+	BackDesc.FillMode = D3D11_FILL_SOLID;
+	BackDesc.CullMode = D3D11_CULL_BACK;
+	HR(m_pDevice->CreateRasterizerState(&BackDesc, &m_pRasterStates[static_cast<int>(EMaterialCullMode::Back)]));
+
+	D3D11_RASTERIZER_DESC FrontDesc = BackDesc;
+	FrontDesc.CullMode = D3D11_CULL_FRONT;
+	HR(m_pDevice->CreateRasterizerState(&FrontDesc, &m_pRasterStates[static_cast<int>(EMaterialCullMode::Front)]));
+
+	D3D11_RASTERIZER_DESC NoneDesc = BackDesc;
+	NoneDesc.CullMode = D3D11_CULL_NONE;
+	HR(m_pDevice->CreateRasterizerState(&NoneDesc, &m_pRasterStates[static_cast<int>(EMaterialCullMode::None)]));
 }
