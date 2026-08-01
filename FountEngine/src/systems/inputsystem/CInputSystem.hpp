@@ -7,7 +7,9 @@
 
 class CInputSystem {
 public:
-	static CInputSystem& GetInstance();
+	CInputSystem();
+	~CInputSystem() = default;
+
 	void Initialize(HWND hWnd);
 
 	void OnKeyDown(UINT uKey);
@@ -47,7 +49,4 @@ private:
 	bool m_bCursorLocked;
 
 	HWND m_hWnd;
-
-	CInputSystem();
-	~CInputSystem() = default;
 };

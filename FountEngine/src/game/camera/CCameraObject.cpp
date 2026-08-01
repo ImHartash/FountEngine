@@ -1,6 +1,6 @@
 #include "CCameraObject.hpp"
-#include "systems/input/CInputSystem.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/inputsystem/CInputSystem.hpp"
 
 CCameraObject::CCameraObject() : m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0) {
 	DirectX::XMStoreFloat4x4(&m_mtViewMatrix, DirectX::XMMatrixIdentity());
@@ -9,10 +9,10 @@ CCameraObject::CCameraObject() : m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0) 
 void CCameraObject::Update(float flDeltaTime) {
 	static float flSensitivity = 0.002f;
 
-	if (CInputSystem::GetInstance().IsMouseButtonDown(0x1)) {
+	if (g_pInputSystem->IsMouseButtonDown(0x1)) {
 		m_vecRotation += Vector3_t(
-			flSensitivity * CInputSystem::GetInstance().GetMouseDeltaY(),
-			-flSensitivity * CInputSystem::GetInstance().GetMouseDeltaX(), 
+			flSensitivity * g_pInputSystem->GetMouseDeltaY(),
+			-flSensitivity * g_pInputSystem->GetMouseDeltaX(),
 			0.f
 		);
 	}
@@ -29,22 +29,22 @@ void CCameraObject::Update(float flDeltaTime) {
 	Vector3_t vecUp = vecForward.Cross(vecRight);
 
 	// Updating keys
-	if (CInputSystem::GetInstance().IsKeyDown('W')) {
+	if (g_pInputSystem->IsKeyDown('W')) {
 		m_vecPosition += vecForward * flDeltaTime;
 	}
-	if (CInputSystem::GetInstance().IsKeyDown('S')) {
+	if (g_pInputSystem->IsKeyDown('S')) {
 		m_vecPosition -= vecForward * flDeltaTime;
 	}
-	if (CInputSystem::GetInstance().IsKeyDown('A')) {
+	if (g_pInputSystem->IsKeyDown('A')) {
 		m_vecPosition -= vecRight * flDeltaTime;
 	}
-	if (CInputSystem::GetInstance().IsKeyDown('D')) {
+	if (g_pInputSystem->IsKeyDown('D')) {
 		m_vecPosition += vecRight * flDeltaTime;
 	}
-	if (CInputSystem::GetInstance().IsKeyDown(VK_SPACE)) {
+	if (g_pInputSystem->IsKeyDown(VK_SPACE)) {
 		m_vecPosition += vecUp * flDeltaTime;
 	}
-	if (CInputSystem::GetInstance().IsKeyDown(VK_CONTROL)) {
+	if (g_pInputSystem->IsKeyDown(VK_CONTROL)) {
 		m_vecPosition -= vecUp * flDeltaTime;
 	}
 

@@ -27,10 +27,10 @@
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\systems\logging\CLogSystem.cpp">
+    <ClCompile Include="src\systems\logsystem\CLogSystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\systems\input\CInputSystem.cpp">
+    <ClCompile Include="src\systems\inputsystem\CInputSystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\game\camera\CCameraObject.cpp">
@@ -57,6 +57,12 @@
     <ClCompile Include="src\systems\filesystem\fntpk\CFntPackFile.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\systems\CSystemManager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -71,13 +77,13 @@
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\systems\input\CInputSystem.hpp">
+    <ClInclude Include="src\systems\inputsystem\CInputSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\defines.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\systems\logging\CLogSystem.hpp">
+    <ClInclude Include="src\systems\logsystem\CLogSystem.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\game\camera\CCameraObject.hpp">
@@ -153,6 +159,24 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\filesystem\headers\fntmat_header.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enums\material.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\baseentity\entityhandle\CEntityHandle.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\CSystemManager.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\resource\CResourceHandle.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

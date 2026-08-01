@@ -4,7 +4,7 @@
 CGameTimer::CGameTimer()
 	: m_flSecondsPerCount(0.0), m_flDeltaTime(-1.0), m_nBaseTime(0), m_nStopTime(0),
 	m_nPausedTime(0), m_nPrevTime(0), m_nCurrentTime(0), m_bStopped(false) {
-	__int64 nCountsPerSecond;
+	int64_t nCountsPerSecond;
 	QueryPerformanceFrequency((LARGE_INTEGER*)&nCountsPerSecond);
 	m_flSecondsPerCount = 1.f / nCountsPerSecond;
 }
@@ -23,7 +23,7 @@ float CGameTimer::GetDeltaTime() const {
 }
 
 void CGameTimer::Reset() {
-	__int64 nCurrentTime;
+	int64_t nCurrentTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&nCurrentTime);
 
 	m_nBaseTime = nCurrentTime;
@@ -35,7 +35,7 @@ void CGameTimer::Reset() {
 void CGameTimer::Start() {
 	if (!m_bStopped) return;
 
-	__int64 nStartTime;
+	int64_t nStartTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&nStartTime);
 
 	m_nPausedTime += (nStartTime - m_nStopTime);
@@ -47,7 +47,7 @@ void CGameTimer::Start() {
 void CGameTimer::Stop() {
 	if (m_bStopped) return;
 
-	__int64 nCurrentTime;
+	int64_t nCurrentTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&nCurrentTime);
 
 	m_nStopTime = nCurrentTime;
@@ -60,7 +60,7 @@ void CGameTimer::Tick() {
 		return;
 	}
 
-	__int64 nCurrentTime;
+	int64_t nCurrentTime;
 	QueryPerformanceCounter((LARGE_INTEGER*)&nCurrentTime);
 
 	m_nCurrentTime = nCurrentTime;

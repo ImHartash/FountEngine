@@ -26,7 +26,8 @@ public:
 		COLOR_TIMESTAMP = 11
 	};
 
-	static CLogSystem& GetInstance();
+	CLogSystem();
+	~CLogSystem();
 
 	bool Initialize(const std::string& strLogFile = "engine.log");
 	void Shutdown();
@@ -39,9 +40,6 @@ public:
 	void SetMinLogLevel(ELogLevel Level) { m_eMinLogLevel = Level; }
 
 private:
-	CLogSystem();
-	~CLogSystem();
-
 	std::string GetCurrentTimeStamp();
 	std::string LevelToString(ELogLevel Level);
 	ELogColor LevelToColor(ELogLevel Level);
@@ -58,11 +56,11 @@ private:
 	HANDLE m_hConsole;
 };
 
-#define LOG_DEBUG(...)    CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_INFO(...)     CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_WARNING(...)  CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_WARNING, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_ERROR(...)    CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
-#define LOG_FATAL(...)    CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_FATAL, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_DEBUG(...)    g_pLogSystem->LogF(CLogSystem::LEVEL_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...)     g_pLogSystem->LogF(CLogSystem::LEVEL_INFO, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARNING(...)  g_pLogSystem->LogF(CLogSystem::LEVEL_WARNING, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...)    g_pLogSystem->LogF(CLogSystem::LEVEL_ERROR, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_FATAL(...)    g_pLogSystem->LogF(CLogSystem::LEVEL_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
-#define LOG_DEBUG_S(...)    CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_DEBUG, __VA_ARGS__)
-#define LOG_INFO_S(...)     CLogSystem::GetInstance().LogF(CLogSystem::LEVEL_INFO, __VA_ARGS__)
+#define LOG_DEBUG_S(...)    g_pLogSystem->LogF(CLogSystem::LEVEL_DEBUG, __VA_ARGS__)
+#define LOG_INFO_S(...)     g_pLogSystem->LogF(CLogSystem::LEVEL_INFO, __VA_ARGS__)

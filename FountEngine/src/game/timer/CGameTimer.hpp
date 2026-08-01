@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 class CGameTimer {
 public:
@@ -17,11 +18,11 @@ private:
 	double m_flSecondsPerCount;
 	double m_flDeltaTime;
 
-	__int64 m_nBaseTime;
-	__int64 m_nPausedTime;
-	__int64 m_nStopTime;
-	__int64 m_nPrevTime;
-	__int64 m_nCurrentTime;
+	int64_t m_nBaseTime;
+	int64_t m_nPausedTime;
+	int64_t m_nStopTime;
+	int64_t m_nPrevTime;
+	int64_t m_nCurrentTime;
 
 	bool m_bStopped;
 };

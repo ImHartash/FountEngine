@@ -13,11 +13,6 @@ CLogSystem::~CLogSystem() {
 	Shutdown();
 }
 
-CLogSystem& CLogSystem::GetInstance() {
-	static CLogSystem Instance;
-	return Instance;
-}
-
 bool CLogSystem::Initialize(const std::string& strLogFile) {
 	std::lock_guard<std::mutex> lock(m_Mutex);
 

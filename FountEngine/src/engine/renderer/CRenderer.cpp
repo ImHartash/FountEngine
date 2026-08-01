@@ -1,5 +1,6 @@
 #include "CRenderer.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 #include "systems/resourcesystem/CResourceSystem.hpp"
 #include "systems/entitysystem/CEntitySystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
@@ -7,6 +8,7 @@
 #include "game/entitites/cubeentity/CCubeEntity.hpp"
 #include "utils/defines.hpp"
 #include "utils/BufferPerObject_t.hpp"
+#include <algorithm>
 
 CRenderer& CRenderer::GetInstance() {
 	static CRenderer Instance;
@@ -19,7 +21,7 @@ bool CRenderer::Initialize() {
 		return false;
 	}
 
-	if (!CreateWorldViewProjectionBuffer()) {
+	if (!CreateBufferPerObject()) {
 		LOG_ERROR("Failed to create World View Projection buffer.");
 		return false;
 	}
@@ -31,10 +33,11 @@ bool CRenderer::Initialize() {
 
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
-	CFileSystem::GetInstance().MountPakFile("fountpak01.fntpk");
-	CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
-	CCubeEntity* pEntity = CEntitySystem::GetInstance().CreateEntity<CCubeEntity>();
+	g_pFileSystem->MountPakFile("fountpak01.fntpk");
+	g_pEntitySystem->CreateEntity<CCubeEntity>();
+	CCubeEntity* pEntity = g_pEntitySystem->CreateEntity<CCubeEntity>();
 	pEntity->SetPosition({4.f, 0.f, 0.f});
+	pEntity->SetMaterialResource("materials/test_blend.fntmat");
 
 	m_PlayerCamera.SetPosition({ 0.f, 0.f, -5.f });
 
@@ -44,7 +47,45 @@ bool CRenderer::Initialize() {
 
 void CRenderer::UpdateSceneComponents(float flDeltaTime) {
 	m_PlayerCamera.Update(flDeltaTime);
-	CEntitySystem::GetInstance().UpdateAllEntities(flDeltaTime);
+	g_pEntitySystem->UpdateAllEntities(flDeltaTime);
+}
+
+void CRenderer::PrepareFrame() {
+	m_vecOpaqueRenderList.clear();
+	m_vecTransparentRenderList.clear();
+
+	Vector3_t vecCameraPosition = m_PlayerCamera.GetPosition();
+
+	for (EntitySlot_t* pEntitySlot = g_pEntitySystem->GetFirstSlot(); pEntitySlot; pEntitySlot = pEntitySlot->pNext) {
+		IBaseEntity* pBase = pEntitySlot->pEntity.get();
+		if (!pBase) continue;
+
+		CBaseModelEntity* pModelEntity = dynamic_cast<CBaseModelEntity*>(pBase);
+		if (!pModelEntity) continue;
+
+		CModelResourceData* pModel
+			= g_pResourceSystem->GetResource<CModelResourceData>(pModelEntity->GetModelResource());
+		if (!pModel) continue;
+
+		CMaterialResourceData* pMaterial 
+			= g_pResourceSystem->GetResource<CMaterialResourceData>(pModelEntity->GetMaterialResource());
+		if (!pMaterial) continue;
+
+		if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
+			m_vecOpaqueRenderList.push_back({ pModelEntity, pModel, pMaterial, 0.f });
+			continue;
+		}
+
+		Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
+		float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y 
+			* vecPositionDelta.y + vecPositionDelta.z * vecPositionDelta.z;
+		m_vecTransparentRenderList.push_back({ pModelEntity, pModel, pMaterial, flDistanceSq });
+	}
+
+	std::sort(m_vecTransparentRenderList.begin(), m_vecTransparentRenderList.end(),
+		[](const RenderItem_t& A, const RenderItem_t& B) {
+			return A.flDistanceSq > B.flDistanceSq;
+		});
 }
 
 void CRenderer::RenderScene() {
@@ -72,45 +113,47 @@ void CRenderer::RenderScene() {
 	pContext->VSSetShader(m_pVertexShader, nullptr, 0);
 	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
-	for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
+	for (RenderItem_t& RenderEntity : m_vecOpaqueRenderList) {
+		RenderModel(RenderEntity.pEntity, RenderEntity.pModel, RenderEntity.pMaterial);
+	}
+
+	for (RenderItem_t& RenderEntity : m_vecTransparentRenderList) {
+		RenderModel(RenderEntity.pEntity, RenderEntity.pModel, RenderEntity.pMaterial);
+	}
+
+	/*for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
 		CBaseModelEntity* pModelEntity = CEntitySystem::GetInstance().GetEntityByIndex<CBaseModelEntity>(nEntityIndex);
 		if (pModelEntity == nullptr)
 			continue;
 
 		RenderModel(pModelEntity);
-	}
+	}*/
 }
 
-void CRenderer::RenderModel(CBaseModelEntity* pModelEntity) {
+void CRenderer::RenderModel(CBaseModelEntity* pModelEntity, 
+	CModelResourceData* pEntityModel, CMaterialResourceData* pEntityMaterial) 
+{
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
-	std::string strModelResource = pModelEntity->GetModelResource();
-	std::string strTextureResource = pModelEntity->GetTextureResource();
-	if (strModelResource.empty() || strModelResource == "")
+	CGraphicsContext::GetInstance().ApplyMaterialStates(pEntityMaterial->GetBlendMode(),
+		pEntityMaterial->GetCullMode(), pEntityMaterial->GetDepthMode());
+
+	CResourceHandle hTexureHandle = pEntityMaterial->GetDiffuseTexture();
+	CTextureResourceData* pTextureData
+		= g_pResourceSystem->GetResource<CTextureResourceData>(hTexureHandle);
+	if (pTextureData == nullptr)
 		return;
 
-	if (strTextureResource.empty() || strTextureResource == "") {
-		// TODO: Make missing texture fallback
-		return;
+	if (m_GPUCache.find(pEntityModel) == m_GPUCache.end()) {
+		this->AddToStaticBuffers(pEntityModel);
 	}
 
-	CModelResourceData* pModelResourceData = CResourceSystem::GetInstance().GetResource<CModelResourceData>(strModelResource);
-	if (pModelResourceData == nullptr)
-		return;
+	ModelGPUData_t& ModelBufferData = m_GPUCache[pEntityModel];
+	UpdateBufferPerObject(pModelEntity, pEntityMaterial);
 
-	CTextureResourceData* pModelTextureData = CResourceSystem::GetInstance().GetResource<CTextureResourceData>(strTextureResource);
-	if (pModelTextureData == nullptr)
-		return;
+	ID3D11ShaderResourceView* pSRV = pTextureData->GetResourceView();
 
-	if (m_GPUCache.find(pModelResourceData) == m_GPUCache.end()) {
-		this->AddToStaticBuffers(pModelResourceData);
-	}
-
-	ModelGPUData_t& ModelBufferData = m_GPUCache[pModelResourceData];
-	UpdateWorldViewProjectionBuffer(pModelEntity);
-
-	ID3D11ShaderResourceView* pSRV = pModelTextureData->GetResourceView();
-
-	pContext->VSSetConstantBuffers(0, 1, &m_pWorldViewProjectionBuffer);
+	pContext->VSSetConstantBuffers(0, 1, &m_pBufferPerObject);
+	pContext->PSSetConstantBuffers(0, 1, &m_pBufferPerObject);
 	pContext->PSSetShaderResources(0, 1, &pSRV);
 	pContext->DrawIndexed(
 		ModelBufferData.nIndexCount,
@@ -219,7 +262,7 @@ bool CRenderer::CreateInputLayout(ID3DBlob* pVSBlob) {
 	return true;
 }
 
-bool CRenderer::CreateWorldViewProjectionBuffer() {
+bool CRenderer::CreateBufferPerObject() {
 	ID3D11Device* pDevice = CGraphicsContext::GetInstance().GetDevice();
 
 	D3D11_BUFFER_DESC WVPBufferDesc = {};
@@ -229,7 +272,7 @@ bool CRenderer::CreateWorldViewProjectionBuffer() {
 	WVPBufferDesc.CPUAccessFlags = 0;
 	WVPBufferDesc.MiscFlags = 0;
 
-	HR(pDevice->CreateBuffer(&WVPBufferDesc, nullptr, &m_pWorldViewProjectionBuffer));
+	HR(pDevice->CreateBuffer(&WVPBufferDesc, nullptr, &m_pBufferPerObject));
 	return true;
 }
 
@@ -286,21 +329,32 @@ void CRenderer::UpdateBuffers() {
 	HR(pDevice->CreateBuffer(&IndexBufferDesc, &IndexBufferInitData, &m_pStaticIndexBuffer));
 }
 
-void CRenderer::UpdateWorldViewProjectionBuffer(CBaseModelEntity* pModelEntity) {
+void CRenderer::UpdateBufferPerObject(CBaseModelEntity* pModelEntity, CMaterialResourceData* pMaterial) {
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
-	BufferPerObject_t WVPBuffer;
+	BufferPerObject_t BufferPerObject;
 
 	DirectX::XMMATRIX mtWorld = GetWorldMatrixFromObject(pModelEntity);
 	DirectX::XMMATRIX mtView = m_PlayerCamera.GetViewMatrix();
 	DirectX::XMMATRIX mtProjection = DirectX::XMLoadFloat4x4(&CGraphicsContext::GetInstance().GetProjectionMatrix());
 	DirectX::XMMATRIX mtWorldViewProjection = DirectX::XMMatrixTranspose(mtWorld * mtView * mtProjection);
 
-	DirectX::XMStoreFloat4x4(&WVPBuffer.mtWorldViewProjection, mtWorldViewProjection);
+	DirectX::XMStoreFloat4x4(&BufferPerObject.mtWorldViewProjection, mtWorldViewProjection);
+
+	const Vector3_t& vecAmbient = pMaterial->GetAmbient();
+	const Vector3_t& vecDiffuse = pMaterial->GetDiffuse();
+	const Vector3_t& vecSpecular = pMaterial->GetSpecular();
+
+	BufferPerObject.Material.vec3Ambient = { vecAmbient.x, vecAmbient.y, vecAmbient.z };
+	BufferPerObject.Material.flShininess = pMaterial->GetShininess();
+	BufferPerObject.Material.vec3Diffuse = { vecDiffuse.x, vecDiffuse.y, vecDiffuse.z };
+	BufferPerObject.Material.flOpacity = pMaterial->GetOpacity();
+	BufferPerObject.Material.vec3Specular = { vecSpecular.x, vecSpecular.y, vecSpecular.z };
+	BufferPerObject.Material._flPad0 = 0.f;
 
 	pContext->UpdateSubresource(
-		m_pWorldViewProjectionBuffer,
+		m_pBufferPerObject,
 		0, nullptr,
-		&WVPBuffer,
+		&BufferPerObject,
 		0, 0
 	);
 }
@@ -318,7 +372,7 @@ DirectX::XMMATRIX CRenderer::GetWorldMatrixFromObject(CBaseModelEntity* pModelEn
 
 CRenderer::CRenderer() 
 	: m_pVertexShader(nullptr), m_pPixelShader(nullptr), m_pStaticVertexBuffer(nullptr),
-	m_pStaticIndexBuffer(nullptr), m_pWorldViewProjectionBuffer(nullptr), m_pInputLayout(nullptr),
+	m_pStaticIndexBuffer(nullptr), m_pBufferPerObject(nullptr), m_pInputLayout(nullptr),
 	m_pTextureSampler(nullptr) {}
 
 CRenderer::~CRenderer() {
@@ -326,7 +380,7 @@ CRenderer::~CRenderer() {
 	RELEASE_COM(m_pPixelShader);
 	RELEASE_COM(m_pStaticVertexBuffer);
 	RELEASE_COM(m_pStaticIndexBuffer);
-	RELEASE_COM(m_pWorldViewProjectionBuffer);
+	RELEASE_COM(m_pBufferPerObject);
 	RELEASE_COM(m_pInputLayout);
 	RELEASE_COM(m_pTextureSampler);
 }

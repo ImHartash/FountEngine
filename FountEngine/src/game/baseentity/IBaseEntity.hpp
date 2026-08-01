@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "entityhandle/CEntityHandle.hpp"
 
 class IBaseEntity {
 public:
@@ -9,9 +10,12 @@ public:
 	virtual void OnSpawn() = 0;
 	virtual void OnDestroy() = 0;
 	
-	uint32_t GetIndex() const { return m_nIndex; };
-	void SetIndex(uint32_t nIndex) { m_nIndex = nIndex; }
+	CEntityHandle GetHandle() const { return m_Handle; }
+
+protected:
+	friend class CEntitySystem;
+	void SetHandle(CEntityHandle Handle) { m_Handle = Handle; }
 
 private:
-	uint32_t m_nIndex = -1;
+	CEntityHandle m_Handle;
 };

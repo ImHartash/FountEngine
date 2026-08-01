@@ -6,7 +6,7 @@ VertexOut FntVertexShader(VertexIn vIn)
     VertexOut vOut;
     
     float4 flVertexPosition = float4(vIn.flPosition, 1.0f);
-    flVertexPosition = mul(flVertexPosition, WorldViewProjectionMatrix);
+    flVertexPosition = mul(flVertexPosition, gWorldViewProjectionMatrix);
     vOut.flPosition = flVertexPosition;
     vOut.flNormal = vIn.flNormal;
     vOut.flTexcoord = vIn.flTexcoord;

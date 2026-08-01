@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "enums/material.hpp"
 
 class CGraphicsContext {
 public:
@@ -12,6 +13,8 @@ public:
 	void Update(float flDeltaTime);
 	void Render();
 	void OnResize(int nWidth, int nHeight);
+	void ApplyMaterialStates(EMaterialBlendMode BlendMode, 
+		EMaterialCullMode CullMode, EMaterialDepthMode DepthMode);
 
 	ID3D11DeviceContext* GetDeviceContext() { return m_pDeviceContext; }
 	ID3D11Device* GetDevice() { return m_pDevice; }
@@ -24,7 +27,9 @@ private:
 	~CGraphicsContext();
 
 	CGraphicsContext(const CGraphicsContext&) = delete;
-	CGraphicsContext operator=(const CGraphicsContext&) = delete;
+	CGraphicsContext& operator=(const CGraphicsContext&) = delete;
+
+	void CreateRenderStates();
 
 	// Matrices
 	DirectX::XMFLOAT4X4 m_mtProjection;
@@ -37,6 +42,10 @@ private:
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11DepthStencilView* m_pDepthStencilView;
 	ID3D11Texture2D* m_pDepthStencilBuffer;
+
+	ID3D11BlendState* m_pBlendStates[3] = { nullptr, nullptr, nullptr };
+	ID3D11DepthStencilState* m_pDepthStates[3] = { nullptr, nullptr, nullptr };
+	ID3D11RasterizerState* m_pRasterStates[3] = { nullptr, nullptr, nullptr };
 
 	D3D11_VIEWPORT m_dxViewport;
 };

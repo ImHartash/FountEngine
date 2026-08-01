@@ -4,7 +4,8 @@
 
 class CFileSystem {
 public:
-	static CFileSystem& GetInstance();
+	CFileSystem() = default;
+	~CFileSystem() = default;
 
 	void Initialize();
 
@@ -14,7 +15,4 @@ public:
 private:
 	std::vector<CFntPackFile> m_FntPacks;
 	std::string m_strResourcePath;
-
-	CFileSystem() = default;
-	~CFileSystem() = default;
 };

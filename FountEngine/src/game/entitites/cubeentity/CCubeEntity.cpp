@@ -1,13 +1,12 @@
 #include "CCubeEntity.hpp"
-#include "systems/logging/CLogSystem.hpp"
+#include "systems/CSystemManager.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
 #include "systems/resourcesystem/CResourceSystem.hpp"
 
 void CCubeEntity::OnSpawn() {
 	LOG_INFO("Spawning Test Cube.");
-	CResourceSystem::GetInstance().LoadResource("models/simple_cube_test_c.fntmdl");
-	CResourceSystem::GetInstance().LoadResource("textures/simple_cube_test_c.fnttex");
-	this->SetModelResource("models/simple_cube_test_c.fntmdl");
-	this->SetTextureResource("textures/simple_cube_test_c.fnttex");
+	this->SetMaterialResource("materials/test_cube.fntmat");
+	this->SetModelResource("models/test_cube.fntmdl");
 }
 
 void CCubeEntity::Update(float flDeltaTime) {
