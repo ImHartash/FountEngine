@@ -1,15 +1,15 @@
 #include "common.hlsl"
 
 // TODO: Make TexTransform and WorldInvTranspose for buffer.
-VertexOut FntVertexShader(VertexIn vIn)
+VertexOut_t FntVertexShader(VertexIn_t VertexIn)
 {
-    VertexOut vOut;
+    VertexOut_t VertexOut;
     
-    float4 flVertexPosition = float4(vIn.flPosition, 1.0f);
+    float4 flVertexPosition = float4(VertexIn.vPosition, 1.0f);
     flVertexPosition = mul(flVertexPosition, gWorldViewProjectionMatrix);
-    vOut.flPosition = flVertexPosition;
-    vOut.flNormal = vIn.flNormal;
-    vOut.flTexcoord = vIn.flTexcoord;
+    VertexOut.vPosition = flVertexPosition;
+    VertexOut.vNormal = VertexIn.vNormal;
+    VertexOut.vTexcoord = VertexIn.vTexcoord;
     
-    return vOut;
+    return VertexOut;
 }

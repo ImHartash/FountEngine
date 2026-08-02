@@ -1,9 +1,9 @@
 #include "common.hlsl"
 
-float4 FntPixelShader(VertexOut pIn) : SV_TARGET
+float4 FntPixelShader(VertexOut_t pIn) : SV_TARGET
 {
-    float4 fl4PixelColor = gTexture.Sample(gSampler, pIn.flTexcoord);
-    fl4PixelColor.a *= gMaterial.flMaterialOpacity;
+    float4 vPixelColor = gTexture.Sample(gSampler, pIn.vTexcoord);
+    vPixelColor.a *= gMaterial.flOpacity;
     
-    return fl4PixelColor;
+    return vPixelColor;
 }
