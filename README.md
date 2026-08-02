@@ -1,4 +1,4 @@
-<center>
+<div align="center">
 
 # FountEngine
 
@@ -7,7 +7,7 @@
 [![DirectX](https://img.shields.io/badge/DirectX-11-9cf.svg?style=for-the-badge)](https://en.wikipedia.org/wiki/DirectX)
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg?style=for-the-badge)](#)
 
-</center>
+</div>
 
 **FountEngine** is a custom C++26 game engine built on Direct3D 11. Its architecture is loosely inspired by Source 2's system‑manager model: independent, singleton‑style subsystems with explicit lifecycles, slot‑based object pools instead of raw allocation, and a strict split between editable source assets and runtime‑optimized binary formats.
 
