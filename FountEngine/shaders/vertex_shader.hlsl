@@ -5,10 +5,9 @@ VertexOut_t FntVertexShader(VertexIn_t VertexIn)
 {
     VertexOut_t VertexOut;
     
-    float4 flVertexPosition = float4(VertexIn.vPosition, 1.0f);
-    flVertexPosition = mul(flVertexPosition, gWorldViewProjectionMatrix);
-    VertexOut.vPosition = flVertexPosition;
-    VertexOut.vNormal = VertexIn.vNormal;
+    VertexOut.vPositionWorld = mul(float4(VertexIn.vPosition, 1.0f), gWorldMatrix).xyz;
+    VertexOut.vNormalWorld = mul(VertexIn.vNormalLocal, (float3x3) gWorldInverseTranspose);
+    VertexOut.vPosition = mul(float4(VertexIn.vPosition, 1.0f), gWorldViewProjectionMatrix);
     VertexOut.vTexcoord = VertexIn.vTexcoord;
     
     return VertexOut;

@@ -6,8 +6,15 @@
 #include "systems/filesystem/CFileSystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
 #include "game/entitites/cubeentity/CCubeEntity.hpp"
+#include "game/entitites/sphereentity/CSphereEntity.hpp"
+#include "game/entitites/light/directionallight/CDirectionalLight.hpp"
+#include "game/entitites/light/pointlight/CPointLight.hpp"
+#include "game/entitites/light/spotlight/CSpotLight.hpp"
 #include "utils/defines.hpp"
 #include "utils/BufferPerObject_t.hpp"
+#include "utils/LightBuffer_t.hpp"
+#include "enums/entity_flags.hpp"
+#include "math/matrixutils/CMatrixUtils.hpp"
 #include <algorithm>
 
 CRenderer& CRenderer::GetInstance() {
@@ -21,7 +28,7 @@ bool CRenderer::Initialize() {
 		return false;
 	}
 
-	if (!CreateBufferPerObject()) {
+	if (!CreateGPUBuffers()) {
 		LOG_ERROR("Failed to create World View Projection buffer.");
 		return false;
 	}
@@ -34,10 +41,21 @@ bool CRenderer::Initialize() {
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
 	g_pFileSystem->MountPakFile("fountpak01.fntpk");
-	g_pEntitySystem->CreateEntity<CCubeEntity>();
+	/*g_pEntitySystem->CreateEntity<CCubeEntity>();
+
 	CCubeEntity* pEntity = g_pEntitySystem->CreateEntity<CCubeEntity>();
 	pEntity->SetPosition({4.f, 0.f, 0.f});
-	pEntity->SetMaterialResource("materials/test_blend.fntmat");
+	pEntity->SetMaterialResource("materials/test_blend.fntmat");*/
+
+	CSphereEntity* pEntity = g_pEntitySystem->CreateEntity<CSphereEntity>();
+
+	Vector3_t vecLightDir = Vector3_t(0.5f, -0.8f, 0.3f).Normalize();
+	CDirectionalLight* pSunEntity = g_pEntitySystem->CreateEntity<CDirectionalLight>(
+		Vector3_t(0.1f, 0.1f, 0.1f),
+		Vector3_t(1.0f, 1.0f, 1.0f),
+		Vector3_t(0.6f, 0.6f, 0.6f),
+		vecLightDir);
+	// END OF TESTING
 
 	m_PlayerCamera.SetPosition({ 0.f, 0.f, -5.f });
 
@@ -54,38 +72,60 @@ void CRenderer::PrepareFrame() {
 	m_vecOpaqueRenderList.clear();
 	m_vecTransparentRenderList.clear();
 
+	std::vector<CDirectionalLight*> vecDirLights;
+	std::vector<CPointLight*> vecPointLights;
+	std::vector<CSpotLight*> vecSpotLights;
+
 	Vector3_t vecCameraPosition = m_PlayerCamera.GetPosition();
 
 	for (EntitySlot_t* pEntitySlot = g_pEntitySystem->GetFirstSlot(); pEntitySlot; pEntitySlot = pEntitySlot->pNext) {
 		IBaseEntity* pBase = pEntitySlot->pEntity.get();
 		if (!pBase) continue;
 
-		CBaseModelEntity* pModelEntity = dynamic_cast<CBaseModelEntity*>(pBase);
-		if (!pModelEntity) continue;
+		if (pEntitySlot->nFlags & ENT_FLAG_TYPE_RENDER_ENTITY) { // RENDER MODEL ENTITIES
+			CBaseModelEntity* pModelEntity = static_cast<CBaseModelEntity*>(pBase);
+			if (!pModelEntity) continue;
 
-		CModelResourceData* pModel
-			= g_pResourceSystem->GetResource<CModelResourceData>(pModelEntity->GetModelResource());
-		if (!pModel) continue;
+			CModelResourceData* pModel
+				= g_pResourceSystem->GetResource<CModelResourceData>(pModelEntity->GetModelResource());
+			if (!pModel) continue;
 
-		CMaterialResourceData* pMaterial 
-			= g_pResourceSystem->GetResource<CMaterialResourceData>(pModelEntity->GetMaterialResource());
-		if (!pMaterial) continue;
+			CMaterialResourceData* pMaterial
+				= g_pResourceSystem->GetResource<CMaterialResourceData>(pModelEntity->GetMaterialResource());
+			if (!pMaterial) continue;
 
-		if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
-			m_vecOpaqueRenderList.push_back({ pModelEntity, pModel, pMaterial, 0.f });
-			continue;
+			if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
+				m_vecOpaqueRenderList.push_back({ pModelEntity, pModel, pMaterial, 0.f });
+				continue;
+			}
+
+			Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
+			float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y
+				* vecPositionDelta.y + vecPositionDelta.z * vecPositionDelta.z;
+			m_vecTransparentRenderList.push_back({ pModelEntity, pModel, pMaterial, flDistanceSq });
 		}
-
-		Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
-		float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y 
-			* vecPositionDelta.y + vecPositionDelta.z * vecPositionDelta.z;
-		m_vecTransparentRenderList.push_back({ pModelEntity, pModel, pMaterial, flDistanceSq });
+		if (pEntitySlot->nFlags & ENT_FLAG_TYPE_LIGHT_ENTITY) { // RENDER LIGHT ENTITIES
+			if (pEntitySlot->nFlags & ENT_FLAG_LIGHT_DIR) {
+				CDirectionalLight* pDirLightEntity = static_cast<CDirectionalLight*>(pBase);
+				vecDirLights.push_back(pDirLightEntity);
+			}
+			if (pEntitySlot->nFlags & ENT_FLAG_LIGHT_POINT) {
+				CPointLight* pPointLightEntity = static_cast<CPointLight*>(pBase);
+				vecPointLights.push_back(pPointLightEntity);
+			}
+			if (pEntitySlot->nFlags & ENT_FLAG_LIGHT_SPOT) {
+				CSpotLight* pSpotLightEntity = static_cast<CSpotLight*>(pBase);
+				vecSpotLights.push_back(pSpotLightEntity);
+			}
+		}
 	}
 
 	std::sort(m_vecTransparentRenderList.begin(), m_vecTransparentRenderList.end(),
 		[](const RenderItem_t& A, const RenderItem_t& B) {
 			return A.flDistanceSq > B.flDistanceSq;
-		});
+	});
+
+	this->UpdateLightBuffer(vecDirLights, vecPointLights, vecSpotLights);
 }
 
 void CRenderer::RenderScene() {
@@ -107,6 +147,8 @@ void CRenderer::RenderScene() {
 		0
 	);
 
+	pContext->PSSetConstantBuffers(1, 1, &m_pLightBuffer);
+
 	pContext->IASetInputLayout(m_pInputLayout);
 	pContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -120,14 +162,6 @@ void CRenderer::RenderScene() {
 	for (RenderItem_t& RenderEntity : m_vecTransparentRenderList) {
 		RenderModel(RenderEntity.pEntity, RenderEntity.pModel, RenderEntity.pMaterial);
 	}
-
-	/*for (uint32_t nEntityIndex = 0; nEntityIndex < CEntitySystem::GetInstance().GetMaxIndex(); nEntityIndex++) {
-		CBaseModelEntity* pModelEntity = CEntitySystem::GetInstance().GetEntityByIndex<CBaseModelEntity>(nEntityIndex);
-		if (pModelEntity == nullptr)
-			continue;
-
-		RenderModel(pModelEntity);
-	}*/
 }
 
 void CRenderer::RenderModel(CBaseModelEntity* pModelEntity, 
@@ -262,17 +296,29 @@ bool CRenderer::CreateInputLayout(ID3DBlob* pVSBlob) {
 	return true;
 }
 
-bool CRenderer::CreateBufferPerObject() {
+bool CRenderer::CreateGPUBuffers() {
 	ID3D11Device* pDevice = CGraphicsContext::GetInstance().GetDevice();
 
-	D3D11_BUFFER_DESC WVPBufferDesc = {};
-	WVPBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	WVPBufferDesc.ByteWidth = sizeof(BufferPerObject_t);
-	WVPBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	WVPBufferDesc.CPUAccessFlags = 0;
-	WVPBufferDesc.MiscFlags = 0;
+	D3D11_BUFFER_DESC BufferPerObjectDesc = {};
+	BufferPerObjectDesc.Usage = D3D11_USAGE_DEFAULT;
+	BufferPerObjectDesc.ByteWidth = sizeof(BufferPerObject_t);
+	BufferPerObjectDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	BufferPerObjectDesc.CPUAccessFlags = 0;
+	BufferPerObjectDesc.MiscFlags = 0;
 
-	HR(pDevice->CreateBuffer(&WVPBufferDesc, nullptr, &m_pBufferPerObject));
+	HR(pDevice->CreateBuffer(&BufferPerObjectDesc, nullptr, &m_pBufferPerObject));
+	if (!m_pBufferPerObject) return false;
+
+	D3D11_BUFFER_DESC LightBufferDesc = {};
+	LightBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	LightBufferDesc.ByteWidth = sizeof(LightBuffer_t);
+	LightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	LightBufferDesc.CPUAccessFlags = 0;
+	LightBufferDesc.MiscFlags = 0;
+
+	HR(pDevice->CreateBuffer(&LightBufferDesc, nullptr, &m_pLightBuffer));
+	if (!m_pLightBuffer) return false;
+
 	return true;
 }
 
@@ -334,10 +380,14 @@ void CRenderer::UpdateBufferPerObject(CBaseModelEntity* pModelEntity, CMaterialR
 	BufferPerObject_t BufferPerObject;
 
 	DirectX::XMMATRIX mtWorld = GetWorldMatrixFromObject(pModelEntity);
+	DirectX::XMMATRIX mtWorldInvTranspose = CMatrixUtils::InverseTranspose(mtWorld);
+
 	DirectX::XMMATRIX mtView = m_PlayerCamera.GetViewMatrix();
 	DirectX::XMMATRIX mtProjection = DirectX::XMLoadFloat4x4(&CGraphicsContext::GetInstance().GetProjectionMatrix());
 	DirectX::XMMATRIX mtWorldViewProjection = DirectX::XMMatrixTranspose(mtWorld * mtView * mtProjection);
 
+	DirectX::XMStoreFloat4x4(&BufferPerObject.mtWorld, DirectX::XMMatrixTranspose(mtWorld));
+	DirectX::XMStoreFloat4x4(&BufferPerObject.mtWorldInverseTranspose, DirectX::XMMatrixTranspose(mtWorldInvTranspose));
 	DirectX::XMStoreFloat4x4(&BufferPerObject.mtWorldViewProjection, mtWorldViewProjection);
 
 	const Vector3_t& vecAmbient = pMaterial->GetAmbient();
@@ -355,6 +405,80 @@ void CRenderer::UpdateBufferPerObject(CBaseModelEntity* pModelEntity, CMaterialR
 		m_pBufferPerObject,
 		0, nullptr,
 		&BufferPerObject,
+		0, 0
+	);
+}
+
+void CRenderer::UpdateLightBuffer(const std::vector<CDirectionalLight*>& vecDirectionalLights, 
+	const std::vector<CPointLight*>& vecPointLights, const std::vector<CSpotLight*>& vecSpotLights) {
+	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
+	LightBuffer_t LightBuffer;
+
+	LightBuffer.nDirectionalLightsNumber = 0;
+	LightBuffer.nPointLightsNumber = 0;
+	LightBuffer.nSpotLightsNumber = 0;
+
+	LightBuffer.vec3CameraPositionWorld = m_PlayerCamera.GetPosition().DXAsFloat3();
+
+	for (int nIndex = 0; nIndex < vecDirectionalLights.size(); nIndex += 1) {
+		if (nIndex >= NUM_MAX_DIR_LIGHTS) break;
+
+		CDirectionalLight* pLight = vecDirectionalLights[nIndex];
+		DirectionalLightData_t LightData = {
+			pLight->GetAmbient().DXAsFloat3(), 0,
+			pLight->GetDiffuse().DXAsFloat3(), 0,
+			pLight->GetSpecular().DXAsFloat3(), 0,
+
+			pLight->GetDirection().DXAsFloat3(), 0
+		};
+
+		LightBuffer.arrDirectionalLights[nIndex] = LightData;
+		LightBuffer.nDirectionalLightsNumber += 1;
+	}
+
+	for (int nIndex = 0; nIndex < vecPointLights.size(); nIndex += 1) {
+		if (nIndex >= NUM_MAX_POINT_LIGHTS) break;
+
+		CPointLight* pLight = vecPointLights[nIndex];
+		PointLightData_t LightData = {
+			pLight->GetAmbient().DXAsFloat3(), 0,
+			pLight->GetDiffuse().DXAsFloat3(), 0,
+			pLight->GetSpecular().DXAsFloat3(), 0,
+
+			pLight->GetPosition().DXAsFloat3(),
+			pLight->GetRange(),
+			pLight->GetAttenuation().DXAsFloat3(), 0
+		};
+
+		LightBuffer.arrPointLights[nIndex] = LightData;
+		LightBuffer.nPointLightsNumber += 1;
+	}
+
+	for (int nIndex = 0; nIndex < vecSpotLights.size(); nIndex += 1) {
+		if (nIndex >= NUM_MAX_SPOT_LIGHTS) break;
+
+		CSpotLight* pLight = vecSpotLights[nIndex];
+		SpotLightData_t LightData = {
+			pLight->GetAmbient().DXAsFloat3(), 0,
+			pLight->GetDiffuse().DXAsFloat3(), 0,
+			pLight->GetSpecular().DXAsFloat3(), 0,
+
+			pLight->GetPosition().DXAsFloat3(),
+			pLight->GetRange(),
+			pLight->GetDirection().DXAsFloat3(),
+			pLight->GetSpot(),
+			pLight->GetAttenuation().DXAsFloat3(),
+			0
+		};
+
+		LightBuffer.arrSpotLights[nIndex] = LightData;
+		LightBuffer.nSpotLightsNumber += 1;
+	}
+
+	pContext->UpdateSubresource(
+		m_pLightBuffer,
+		0, nullptr,
+		&LightBuffer,
 		0, 0
 	);
 }

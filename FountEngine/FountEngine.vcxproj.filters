@@ -63,6 +63,21 @@
     <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\game\entitites\light\baselightentity\CBaseLightEntity.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\entitites\light\directionallight\CDirectionalLight.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\entitites\light\pointlight\CPointLight.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\entitites\light\spotlight\CSpotLight.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\entitites\sphereentity\CSphereEntity.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -179,9 +194,34 @@
     <ClInclude Include="src\game\resource\CResourceHandle.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\enums\entity_flags.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entitites\light\baselightentity\CBaseLightEntity.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entitites\light\directionallight\CDirectionalLight.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\LightBuffer_t.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entitites\light\pointlight\CPointLight.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entitites\light\spotlight\CSpotLight.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\math\matrixutils\CMatrixUtils.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entitites\sphereentity\CSphereEntity.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\common.hlsl" />
+    <None Include="shaders\light_shader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\vertex_shader.hlsl" />

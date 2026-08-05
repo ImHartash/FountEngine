@@ -24,6 +24,8 @@ public:
 	void SetRotation(const Angle_t& angViewAngle) { m_angViewAngle = angViewAngle; }
 
 protected:
+	uint32_t GetFlags() const override;
+
 	CResourceHandle m_hModelResource;
 	CResourceHandle m_hMaterialResource;
 

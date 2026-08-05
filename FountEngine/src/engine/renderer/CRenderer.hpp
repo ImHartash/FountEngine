@@ -9,6 +9,10 @@
 #include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
 #include "game/camera/CCameraObject.hpp"
 
+class CDirectionalLight;
+class CPointLight;
+class CSpotLight;
+
 struct RenderItem_t {
 	CBaseModelEntity* pEntity;
 	CModelResourceData* pModel;
@@ -33,14 +37,18 @@ public:
 private:
 	bool LoadShadersFromFile();
 	bool CreateInputLayout(ID3DBlob* pVSBlob);
-	bool CreateBufferPerObject();
+	bool CreateGPUBuffers();
 	bool CreateTextureSampler();
 
 	void SetVertexBuffer(const std::vector<Vertex_t>& vecVertices);
 	void SetIndexBuffer(const std::vector<uint32_t>& vecIndices);
 	void UpdateBuffers();
 
+	// Update buffers
 	void UpdateBufferPerObject(CBaseModelEntity* pModelEntity, CMaterialResourceData* pMaterial);
+	void UpdateLightBuffer(const std::vector<CDirectionalLight*>& vecDirectionalLights,
+		const std::vector<CPointLight*>& vecPointLights, const std::vector<CSpotLight*>& vecSpotLights);
+
 	DirectX::XMMATRIX GetWorldMatrixFromObject(CBaseModelEntity* pModelEntity);
 
 	ID3D11VertexShader* m_pVertexShader;
@@ -55,6 +63,7 @@ private:
 	ID3D11Buffer* m_pStaticVertexBuffer;
 	ID3D11Buffer* m_pStaticIndexBuffer;
 	ID3D11Buffer* m_pBufferPerObject;
+	ID3D11Buffer* m_pLightBuffer;
 
 	ID3D11InputLayout* m_pInputLayout;
 	ID3D11SamplerState* m_pTextureSampler;

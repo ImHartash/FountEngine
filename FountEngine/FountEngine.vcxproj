@@ -159,6 +159,11 @@
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
     <ClCompile Include="src\game\entitites\basemodelentity\CBaseModelEntity.cpp" />
     <ClCompile Include="src\game\entitites\cubeentity\CCubeEntity.cpp" />
+    <ClCompile Include="src\game\entitites\light\baselightentity\CBaseLightEntity.cpp" />
+    <ClCompile Include="src\game\entitites\light\directionallight\CDirectionalLight.cpp" />
+    <ClCompile Include="src\game\entitites\light\pointlight\CPointLight.cpp" />
+    <ClCompile Include="src\game\entitites\light\spotlight\CSpotLight.cpp" />
+    <ClCompile Include="src\game\entitites\sphereentity\CSphereEntity.cpp" />
     <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp" />
     <ClCompile Include="src\systems\CSystemManager.cpp" />
     <ClCompile Include="src\systems\entitysystem\CEntitySystem.cpp" />
@@ -174,12 +179,18 @@
     <ClInclude Include="src\engine\application\CApplication.hpp" />
     <ClInclude Include="src\engine\graphicscontext\CGraphicsContext.hpp" />
     <ClInclude Include="src\engine\renderer\CRenderer.hpp" />
+    <ClInclude Include="src\enums\entity_flags.hpp" />
     <ClInclude Include="src\enums\material.hpp" />
     <ClInclude Include="src\game\baseentity\entityhandle\CEntityHandle.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
+    <ClInclude Include="src\game\entitites\light\baselightentity\CBaseLightEntity.hpp" />
     <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp" />
+    <ClInclude Include="src\game\entitites\light\directionallight\CDirectionalLight.hpp" />
+    <ClInclude Include="src\game\entitites\light\pointlight\CPointLight.hpp" />
+    <ClInclude Include="src\game\entitites\light\spotlight\CSpotLight.hpp" />
+    <ClInclude Include="src\game\entitites\sphereentity\CSphereEntity.hpp" />
     <ClInclude Include="src\game\resource\CResourceHandle.hpp" />
     <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp" />
     <ClInclude Include="src\game\resource\modelgpudata\ModelGPUData_t.hpp" />
@@ -188,6 +199,7 @@
     <ClInclude Include="src\game\resource\textureresourcedata\CTextureResourceData.hpp" />
     <ClInclude Include="src\math\defines.hpp" />
     <ClInclude Include="src\math\mathutils\CMathUtils.hpp" />
+    <ClInclude Include="src\math\matrixutils\CMatrixUtils.hpp" />
     <ClInclude Include="src\math\random\CMathRandom.hpp" />
     <ClInclude Include="src\math\types\angle.hpp" />
     <ClInclude Include="src\math\vertex.hpp" />
@@ -209,21 +221,23 @@
     <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
     <ClInclude Include="src\utils\defines.hpp" />
     <ClInclude Include="src\utils\geometrygenerator\CGeometryGenerator.hpp" />
+    <ClInclude Include="src\utils\LightBuffer_t.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\common.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaders\light_shader.hlsl">
+    <None Include="shaders\light_shader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
-    </FxCompile>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <FileType>Document</FileType>
+    </None>
     <FxCompile Include="shaders\pixel_shader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
