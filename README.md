@@ -54,7 +54,8 @@ The engine is developed solo, as both a study in engine architecture and the fou
 | Native binary formats (`.fntmdl`, `.fnttex`, `.fntmat`) | ✅ Implemented |
 | Static-buffer renderer with per-object constant buffer | ✅ Implemented |
 | Free-fly camera | ✅ Implemented |
-| Simple Lighting (Phong model) | ⏳ In active development |
+| Simple Lighting (Phong model) | ✅ Implemented |
+| Stenciling | ⏳ In Development |
 
 ## Architecture
 
