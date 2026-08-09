@@ -2,7 +2,10 @@
 #include "systems/CSystemManager.hpp"
 #include "systems/inputsystem/CInputSystem.hpp"
 
-CCameraObject::CCameraObject() : m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0) {
+CCameraObject::CCameraObject()
+	: m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0),
+	m_flCameraSpeed(1.f)
+{
 	DirectX::XMStoreFloat4x4(&m_mtViewMatrix, DirectX::XMMatrixIdentity());
 }
 
@@ -30,22 +33,22 @@ void CCameraObject::Update(float flDeltaTime) {
 
 	// Updating keys
 	if (g_pInputSystem->IsKeyDown('W')) {
-		m_vecPosition += vecForward * flDeltaTime;
+		m_vecPosition += vecForward * m_flCameraSpeed * flDeltaTime;
 	}
 	if (g_pInputSystem->IsKeyDown('S')) {
-		m_vecPosition -= vecForward * flDeltaTime;
+		m_vecPosition -= vecForward * m_flCameraSpeed * flDeltaTime;
 	}
 	if (g_pInputSystem->IsKeyDown('A')) {
-		m_vecPosition -= vecRight * flDeltaTime;
+		m_vecPosition -= vecRight * m_flCameraSpeed * flDeltaTime;
 	}
 	if (g_pInputSystem->IsKeyDown('D')) {
-		m_vecPosition += vecRight * flDeltaTime;
+		m_vecPosition += vecRight * m_flCameraSpeed * flDeltaTime;
 	}
 	if (g_pInputSystem->IsKeyDown(VK_SPACE)) {
-		m_vecPosition += vecUp * flDeltaTime;
+		m_vecPosition += vecUp * m_flCameraSpeed * flDeltaTime;
 	}
 	if (g_pInputSystem->IsKeyDown(VK_CONTROL)) {
-		m_vecPosition -= vecUp * flDeltaTime;
+		m_vecPosition -= vecUp * m_flCameraSpeed * flDeltaTime;
 	}
 
 	DirectX::XMVECTOR xmPos = m_vecPosition.DXAsVector();
@@ -64,6 +67,10 @@ void CCameraObject::SetRotation(const Vector3_t& vecRotation) {
 	m_vecRotation = vecRotation;
 }
 
+void CCameraObject::SetSpeed(const float& flCameraSpeed) {
+	m_flCameraSpeed = flCameraSpeed;
+}
+
 DirectX::XMMATRIX CCameraObject::GetViewMatrix() {
 	return DirectX::XMLoadFloat4x4(&m_mtViewMatrix);
 }
@@ -74,4 +81,8 @@ const Vector3_t& CCameraObject::GetPosition() const {
 
 const Vector3_t& CCameraObject::GetRotation() const {
 	return m_vecRotation;
+}
+
+const float& CCameraObject::GetSpeed() const {
+	return m_flCameraSpeed;
 }

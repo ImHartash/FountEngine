@@ -51,10 +51,21 @@ struct SpotLightData_t
     float _flPad3;
 };
 
+struct FogData_t {
+    uint32_t nFogEnabled; // 0 = disabled, other = enabled (please, use 1, it's more like boolean)
+    float flFogStart;
+    float flFogRange;
+    float _flPad0;
+
+    DirectX::XMFLOAT3 vec3FogColor;
+    float _flPad1;
+};
+
 struct LightBuffer_t {
     DirectionalLightData_t arrDirectionalLights[NUM_MAX_DIR_LIGHTS];
     PointLightData_t arrPointLights[NUM_MAX_POINT_LIGHTS];
     SpotLightData_t arrSpotLights[NUM_MAX_SPOT_LIGHTS];
+    FogData_t FogData;
 
     DirectX::XMFLOAT3 vec3CameraPositionWorld;
     float _flPad0;

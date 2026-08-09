@@ -13,6 +13,7 @@ cbuffer cbLightBuffer : register(b1)
     DirectionalLight_t gDirectionalLights[MAX_DIR_LIGHTS];
     PointLight_t gPointLights[MAX_POINT_LIGHTS];
     SpotLight_t gSpotLights[MAX_SPOT_LIGHTS];
+    FogData_t gFogData;
     
     float3 gCameraPosition;
     float _flPad0;

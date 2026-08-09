@@ -72,14 +72,14 @@ void CGraphicsContext::Render() {
 	assert(m_pDeviceContext);
 	assert(m_pSwapChain);
 
-	const float aClearColor[4] = { 0.2f, 0.4f, 0.7f, 1.0f };
+	const float aClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, aClearColor);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 	CRenderer::GetInstance().PrepareFrame();
 	CRenderer::GetInstance().RenderScene();
 
-	HR(m_pSwapChain->Present(0, 0));
+	HR(m_pSwapChain->Present(1, 0));
 }
 
 void CGraphicsContext::OnResize(int nWidth, int nHeight) {

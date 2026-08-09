@@ -50,6 +50,17 @@ struct SpotLight_t
     float _flPad3;
 };
 
+struct FogData_t
+{
+    uint nFogEnabled;
+    float flFogStart;
+    float flFogRange;
+    float _flPad0;
+    
+    float3 vFogColor;
+    float _flPad1;
+};
+
 struct Material_t
 {
     float3 vAmbient;
@@ -66,12 +77,12 @@ struct Material_t
 void ComputeDirectionalLight(Material_t Material, DirectionalLight_t Light, float3 vNormal, float3 vToEye, 
     out float3 vAmbient, out float3 vDiffuse, out float3 vSpecular)
 {
-    vAmbient = float4(0, 0, 0, 0);
-    vDiffuse = float4(0, 0, 0, 0);
-    vSpecular = float4(0, 0, 0, 0);
+    vAmbient = float3(0.0f, 0.0f, 0.0f);
+    vDiffuse = float3(0.0f, 0.0f, 0.0f);
+    vSpecular = float3(0.0f, 0.0f, 0.0f);
 
     float3 vLightVector = -Light.vDirection;
-    vAmbient = Material.vAmbient;
+    vAmbient = Material.vAmbient * Light.vAmbient;
     
     float flDiffuseFactor = dot(vLightVector, vNormal);
 
@@ -89,9 +100,9 @@ void ComputeDirectionalLight(Material_t Material, DirectionalLight_t Light, floa
 void ComputePointLight(Material_t Material, PointLight_t Light, float3 vPosition, float3 vNormal, float3 vToEye,
     out float3 vAmbient, out float3 vDiffuse, out float3 vSpecular)
 {
-    vAmbient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    vDiffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    vSpecular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    vAmbient = float3(0.0f, 0.0f, 0.0f);
+    vDiffuse = float3(0.0f, 0.0f, 0.0f);
+    vSpecular = float3(0.0f, 0.0f, 0.0f);
     
     float3 vLightVector = Light.vPosition - vPosition;
     float flDistance = length(vLightVector);
@@ -123,9 +134,9 @@ void ComputePointLight(Material_t Material, PointLight_t Light, float3 vPosition
 void ComputeSpotLight(Material_t Material, SpotLight_t Light, float3 vPosition, float3 vNormal, float3 vToEye,
     out float3 vAmbient, out float3 vDiffuse, out float3 vSpecular)
 {
-    vAmbient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    vDiffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    vSpecular = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    vAmbient = float3(0.0f, 0.0f, 0.0f);
+    vDiffuse = float3(0.0f, 0.0f, 0.0f);
+    vSpecular = float3(0.0f, 0.0f, 0.0f);
     
     float3 vLightVector = Light.vPosition - vPosition;
     float flDistance = length(vLightVector);

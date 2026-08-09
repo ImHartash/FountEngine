@@ -11,14 +11,17 @@ public:
 
 	void SetPosition(const Vector3_t& vecPosition);
 	void SetRotation(const Vector3_t& vecRotation);
+	void SetSpeed(const float& flCameraSpeed);
 
 	DirectX::XMMATRIX GetViewMatrix();
 	const Vector3_t& GetPosition() const;
 	const Vector3_t& GetRotation() const;
+	const float& GetSpeed() const;
 
 private:
 	Vector3_t m_vecPosition;
 	Vector3_t m_vecRotation;
 
 	DirectX::XMFLOAT4X4 m_mtViewMatrix;
+	float m_flCameraSpeed;
 };

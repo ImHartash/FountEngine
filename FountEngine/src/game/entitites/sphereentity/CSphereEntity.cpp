@@ -6,7 +6,7 @@
 void CSphereEntity::OnSpawn() {
 	LOG_INFO("Spawning Test Sphere.");
 	this->SetMaterialResource("materials/test_light.fntmat");
-	this->SetModelResource("models/test_sphere.fntmdl");
+	this->SetModelResource("models/sphere.fntmdl");
 }
 
 void CSphereEntity::Update(float flDeltaTime) {

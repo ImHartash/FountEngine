@@ -163,6 +163,7 @@
     <ClCompile Include="src\game\entitites\light\directionallight\CDirectionalLight.cpp" />
     <ClCompile Include="src\game\entitites\light\pointlight\CPointLight.cpp" />
     <ClCompile Include="src\game\entitites\light\spotlight\CSpotLight.cpp" />
+    <ClCompile Include="src\game\entitites\spaceobject\CSpaceObject.cpp" />
     <ClCompile Include="src\game\entitites\sphereentity\CSphereEntity.cpp" />
     <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp" />
     <ClCompile Include="src\systems\CSystemManager.cpp" />
@@ -190,6 +191,7 @@
     <ClInclude Include="src\game\entitites\light\directionallight\CDirectionalLight.hpp" />
     <ClInclude Include="src\game\entitites\light\pointlight\CPointLight.hpp" />
     <ClInclude Include="src\game\entitites\light\spotlight\CSpotLight.hpp" />
+    <ClInclude Include="src\game\entitites\spaceobject\CSpaceObject.hpp" />
     <ClInclude Include="src\game\entitites\sphereentity\CSphereEntity.hpp" />
     <ClInclude Include="src\game\resource\CResourceHandle.hpp" />
     <ClInclude Include="src\game\resource\materialresourcedata\CMaterialResourceData.hpp" />
