@@ -1,0 +1,22 @@
+#pragma once
+#include <cstdint>
+
+enum EEntityTypeFlags : uint32_t {
+	ENT_FLAG_TYPE_NONE			= 0,
+	ENT_FLAG_TYPE_RENDER_ENTITY	= 1 << 0,
+	ENT_FLAG_TYPE_LIGHT_ENTITY	= 1 << 1,
+	ENT_FLAG_TYPE_RESERVED1		= 1 << 2,
+	ENT_FLAG_TYPE_RESERVED2		= 1 << 3,
+	ENT_FLAG_TYPE_RESERVED3		= 1 << 4,
+	ENT_FLAG_TYPE_RESERVED4		= 1 << 5,
+	ENT_FLAG_TYPE_RESERVED5		= 1 << 6,
+	ENT_FLAG_TYPE_RESERVED6		= 1 << 7,
+	ENT_FLAG_TYPE_RESERVED7		= 1 << 8,
+	ENT_FLAG_TYPE_RESERVED8		= 1 << 9,
+};
+
+enum ELightEntityFlags : uint32_t {
+	ENT_FLAG_LIGHT_DIR		= 1 << 10,
+	ENT_FLAG_LIGHT_POINT	= 1 << 11,
+	ENT_FLAG_LIGHT_SPOT		= 1 << 12
+};

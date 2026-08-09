@@ -3,15 +3,16 @@
 #include <array>
 #include <vector>
 #include "game/baseentity/IBaseEntity.hpp"
+#include "game/baseentity/entityhandle/CEntityHandle.hpp"
 #include "systems/CSystemManager.hpp"
 #include "systems/logsystem/CLogSystem.hpp"
-#include "game/baseentity/entityhandle/CEntityHandle.hpp"
 #define ENT_MAX_ENGINE_ENTRY 16384
 
 struct EntitySlot_t {
 	std::unique_ptr<IBaseEntity> pEntity;
 	uint32_t nSerial = 0;
 	bool bUsed = false;
+	uint32_t nFlags = 0;
 
 	EntitySlot_t* pNext = nullptr;
 	EntitySlot_t* pPrev = nullptr;
@@ -66,6 +67,7 @@ inline T* CEntitySystem::CreateEntity(Args&& ...args) {
 	pBase->SetHandle(CEntityHandle(nIndex, Slot.nSerial));
 	Slot.pEntity = std::move(pEntity);
 	Slot.bUsed = true;
+	Slot.nFlags = pBase->GetFlags();
 
 	Slot.pNext = m_pActiveHeadSlot;
 	Slot.pPrev = nullptr;
@@ -80,7 +82,7 @@ template<typename T>
 inline T* CEntitySystem::GetEntityByIndex(const uint32_t nIndex) {
 	static_assert(std::is_base_of<IBaseEntity, T>::value, "Template must derive from IBaseEntity");
 	if (nIndex >= ENT_MAX_ENGINE_ENTRY) {
-		LOG_WARNING("Failed to get entity by index: index too high.");
+		LOG_WARNING("Failed to get entity by index: index is too high.");
 		return nullptr;
 	}
 
@@ -95,7 +97,7 @@ inline T* CEntitySystem::GetEntityByHandle(const CEntityHandle Handle) {
 	static_assert(std::is_base_of<IBaseEntity, T>::value, "Template must derive from IBaseEntity");
 	uint32_t nIndex = Handle.GetIndex();
 	if (nIndex >= ENT_MAX_ENGINE_ENTRY) {
-		LOG_WARNING("Failed to get entity by handle: index too high.");
+		LOG_WARNING("Failed to get entity by handle: index is too high.");
 		return nullptr;
 	}
 

@@ -13,6 +13,8 @@ struct MaterialData_t {
 };
 
 struct BufferPerObject_t {
+	DirectX::XMFLOAT4X4 mtWorld;
+	DirectX::XMFLOAT4X4 mtWorldInverseTranspose;
 	DirectX::XMFLOAT4X4 mtWorldViewProjection;
 	MaterialData_t Material;
 };
