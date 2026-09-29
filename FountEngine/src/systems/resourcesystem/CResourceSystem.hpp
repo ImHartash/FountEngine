@@ -8,7 +8,7 @@
 #include "game/resource/CResourceHandle.hpp"
 #include "game/resource/IResource.hpp"
 
-#define SDK_VERSION 1
+#define SDK_VERSION 1 // TODO: Update SDK in future pls
 
 struct ResourceSlot_t {
 	std::unique_ptr<IResource> pResource;

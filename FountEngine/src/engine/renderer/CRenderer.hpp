@@ -6,7 +6,7 @@
 #include "game/resource/textureresourcedata/CTextureResourceData.hpp"
 #include "game/resource/materialresourcedata/CMaterialResourceData.hpp"
 #include "game/resource/modelgpudata/ModelGPUData_t.hpp"
-#include "game/entitites/basemodelentity/CBaseModelEntity.hpp"
+#include "game/entities/basemodelentity/CBaseModelEntity.hpp"
 #include "game/camera/CCameraObject.hpp"
 
 class CDirectionalLight;
@@ -17,6 +17,7 @@ struct RenderItem_t {
 	CBaseModelEntity* pEntity;
 	CModelResourceData* pModel;
 	CMaterialResourceData* pMaterial;
+	int nSubmeshIndex;
 	float flDistanceSq;
 };
 
@@ -29,8 +30,7 @@ public:
 	void UpdateSceneComponents(float flDeltaTime);
 	void PrepareFrame();
 	void RenderScene();
-	void RenderModel(CBaseModelEntity* pModelEntity,
-		CModelResourceData* pEntityModel, CMaterialResourceData* pEntityMaterial);
+	void RenderModel(const RenderItem_t& RenderItem);
 
 	void AddToStaticBuffers(CModelResourceData* pResourceData);
 

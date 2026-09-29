@@ -2,6 +2,7 @@
 #include "systems/filesystem/CFileSystem.hpp"
 #include "systems/filesystem/headers/fntmdl_header.hpp"
 #include "systems/filesystem/headers/fntmdl_vertex.hpp"
+#include "systems/filesystem/headers/fntmdl_submesh.hpp"
 #include "systems/filesystem/headers/fnttex_header.hpp"
 #include "systems/filesystem/headers/fntmat_header.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
@@ -115,7 +116,7 @@ CResourceHandle CResourceSystem::LoadResource(const std::string& strPath) {
 		m_vecResourceCache[nIndex] = std::move(ResourceSlot);
 	}
 	else {
-		nIndex = m_vecResourceCache.size();
+		nIndex = static_cast<uint32_t>(m_vecResourceCache.size());
 		m_vecResourceCache.push_back(std::move(ResourceSlot));
 	}
 
@@ -130,21 +131,24 @@ std::unique_ptr<IResource> CResourceSystem::LoadModel(std::vector<char>& vecData
 	FNTMDL_HEADER Header = {};
 	memcpy(&Header, pBufferPointer, sizeof(FNTMDL_HEADER));
 
-	if (Header.nVersion != SDK_VERSION) {
+	if (Header.nVersion != 2) { // TODO: When SDK will be updated, make every checking to SDK_VERSION
 		LOG_WARNING("Failed to load %s: version is outdated.", strResourceName.c_str());
 		return nullptr;
 	}
 
 	std::vector<_FNTMDL_VERTEX> vecVerticesData(Header.nVertexCount);
 	std::vector<uint32_t> vecIndicesData(Header.nIndexCount);
+	std::vector<FNTMDL_SUBMESH> vecSubmeshesData(Header.nSubmeshCount);
 
 	memcpy(vecVerticesData.data(), pBufferPointer + Header.nVertexOffset, vecVerticesData.size() * sizeof(_FNTMDL_VERTEX));
 	memcpy(vecIndicesData.data(), pBufferPointer + Header.nIndexOffset, vecIndicesData.size() * sizeof(uint32_t));
+	memcpy(vecSubmeshesData.data(), pBufferPointer + Header.nSubmeshOffset, vecSubmeshesData.size() * sizeof(FNTMDL_SUBMESH));
 
+	// Vertices
 	std::vector<Vertex_t> vecVertices;
 	vecVertices.reserve(vecVerticesData.size());
 
-	for (auto& Vertex : vecVerticesData) {
+	for (_FNTMDL_VERTEX& Vertex : vecVerticesData) {
 		Vertex_t FntVertex;
 		FntVertex.vec3Position = { Vertex.px, Vertex.py, Vertex.pz };
 		FntVertex.vec3Normal = { Vertex.nx, Vertex.ny, Vertex.nz };
@@ -153,8 +157,22 @@ std::unique_ptr<IResource> CResourceSystem::LoadModel(std::vector<char>& vecData
 		vecVertices.push_back(FntVertex);
 	}
 
+	// Submeshes
+	std::vector<ModelSubmesh_t> vecSubmeshes;
+	vecSubmeshes.reserve(vecSubmeshesData.size());
+
+	for (FNTMDL_SUBMESH& Submesh : vecSubmeshesData) {
+		ModelSubmesh_t FntSubmesh;
+		FntSubmesh.nIndexOffset = Submesh.nIndexOffset;
+		FntSubmesh.nIndexCount = Submesh.nIndexCount;
+		FntSubmesh.hMaterial = this->LoadResource(Submesh.szMaterialPath);
+
+		vecSubmeshes.push_back(FntSubmesh);
+	}
+
+	// Initializing resource...
 	std::unique_ptr<CModelResourceData> pResource = std::make_unique<CModelResourceData>(
-		std::move(vecVertices), std::move(vecIndicesData)
+		std::move(vecVertices), std::move(vecIndicesData), std::move(vecSubmeshes)
 	);
 	LOG_INFO("Successfully pre-cached %s.", strResourceName.c_str());
 	return pResource;

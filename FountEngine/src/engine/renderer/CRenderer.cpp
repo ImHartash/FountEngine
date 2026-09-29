@@ -5,12 +5,10 @@
 #include "systems/entitysystem/CEntitySystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
 #include "engine/graphicscontext/CGraphicsContext.hpp"
-#include "game/entitites/cubeentity/CCubeEntity.hpp"
-#include "game/entitites/sphereentity/CSphereEntity.hpp"
-#include "game/entitites/spaceobject/CSpaceObject.hpp"
-#include "game/entitites/light/directionallight/CDirectionalLight.hpp"
-#include "game/entitites/light/pointlight/CPointLight.hpp"
-#include "game/entitites/light/spotlight/CSpotLight.hpp"
+#include "game/entities/basepropentity/CBasePropEntity.hpp"
+#include "game/entities/light/directionallight/CDirectionalLight.hpp"
+#include "game/entities/light/pointlight/CPointLight.hpp"
+#include "game/entities/light/spotlight/CSpotLight.hpp"
 #include "utils/defines.hpp"
 #include "utils/BufferPerObject_t.hpp"
 #include "utils/LightBuffer_t.hpp"
@@ -42,27 +40,15 @@ bool CRenderer::Initialize() {
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
 	g_pFileSystem->MountPakFile("fountpak01.fntpk");
-	CSpaceObject* pSun = g_pEntitySystem->CreateEntity<CSpaceObject>(nullptr, 0.f, 0.f, 0.1f);
-	pSun->SetMaterialResource("materials/sun.fntmat");
-	pSun->SetModelResource("models/sphere.fntmdl");
-	pSun->SetScale({ 3.f, 3.f ,3.f });
+	CDirectionalLight* pLight = g_pEntitySystem->CreateEntity<CDirectionalLight>(
+		Vector3_t(0.05f, 0.05f, 0.05f),
+		Vector3_t(0.8f, 0.8f, 0.8f),
+		Vector3_t(1.f, 1.f, 1.f),
+		Vector3_t(-.2f, -1.f, -.3f).Normalize()
+	);
 
-	CSpaceObject* pEarth = g_pEntitySystem->CreateEntity<CSpaceObject>(nullptr, 15.f, 0.06f, 0.4f);
-	pEarth->SetMaterialResource("materials/earth.fntmat");
-	pEarth->SetModelResource("models/sphere.fntmdl");
-
-	CSpaceObject* pMoon = g_pEntitySystem->CreateEntity<CSpaceObject>(pEarth, 3.f, 0.3f, 1.2f);
-	pMoon->SetMaterialResource("materials/moon.fntmat");
-	pMoon->SetModelResource("models/sphere.fntmdl");
-	pMoon->SetScale({ 0.35f,0.35f,0.35f });
-
-	CPointLight* pLight = g_pEntitySystem->CreateEntity<CPointLight>(
-		Vector3_t(0.15f, 0.15f, 0.15f),
-		Vector3_t(1.0f, 0.85f, 0.6f),
-		Vector3_t(1.0f, 1.0f, 1.0f),
-		Vector3_t(0.f, 0.f, 0.f),
-		Vector3_t(1.0f, 0.05f, 0.005f),
-		60.f
+	CBasePropEntity* pEntity = g_pEntitySystem->CreateEntity<CBasePropEntity>(
+		"models/character.fntmdl"
 	);
 
 	// END OF TESTING
@@ -101,19 +87,38 @@ void CRenderer::PrepareFrame() {
 				= g_pResourceSystem->GetResource<CModelResourceData>(pModelEntity->GetModelResource());
 			if (!pModel) continue;
 
-			CMaterialResourceData* pMaterial
-				= g_pResourceSystem->GetResource<CMaterialResourceData>(pModelEntity->GetMaterialResource());
-			if (!pMaterial) continue;
+			for (int nIndex = 0; nIndex < pModel->GetSubmeshes().size(); nIndex++) {
+				const ModelSubmesh_t& Submesh = pModel->GetSubmeshes()[nIndex];
+				CMaterialResourceData* pMaterial
+					= g_pResourceSystem->GetResource<CMaterialResourceData>(Submesh.hMaterial);
+				if (!pMaterial) continue;
 
-			if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
-				m_vecOpaqueRenderList.push_back({ pModelEntity, pModel, pMaterial, 0.f });
-				continue;
+				RenderItem_t RenderItem{pModelEntity, pModel, pMaterial, nIndex, 0.f};
+
+				if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
+					m_vecOpaqueRenderList.push_back(RenderItem);
+				}
+
+				Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
+				float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y * vecPositionDelta.y
+					* vecPositionDelta.z * vecPositionDelta.z;
+				//RenderItem.flDistanceSq = flDistanceSq;
+				m_vecTransparentRenderList.push_back(RenderItem);
 			}
 
-			Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
-			float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y
-				* vecPositionDelta.y + vecPositionDelta.z * vecPositionDelta.z;
-			m_vecTransparentRenderList.push_back({ pModelEntity, pModel, pMaterial, flDistanceSq });
+			//CMaterialResourceData* pMaterial
+			//	= g_pResourceSystem->GetResource<CMaterialResourceData>(pModelEntity->GetMaterialResource());
+			//if (!pMaterial) continue;
+
+			//if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
+			//	m_vecOpaqueRenderList.push_back({ pModelEntity, pModel, pMaterial, 0.f });
+			//	continue;
+			//}
+
+			//Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
+			//float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y
+			//	* vecPositionDelta.y + vecPositionDelta.z * vecPositionDelta.z;
+			//m_vecTransparentRenderList.push_back({ pModelEntity, pModel, pMaterial, flDistanceSq });
 		}
 		if (pEntitySlot->nFlags & ENT_FLAG_TYPE_LIGHT_ENTITY) { // RENDER LIGHT ENTITIES
 			if (pEntitySlot->nFlags & ENT_FLAG_LIGHT_DIR) {
@@ -167,33 +172,37 @@ void CRenderer::RenderScene() {
 	pContext->PSSetShader(m_pPixelShader, nullptr, 0);
 
 	for (RenderItem_t& RenderEntity : m_vecOpaqueRenderList) {
-		RenderModel(RenderEntity.pEntity, RenderEntity.pModel, RenderEntity.pMaterial);
+		RenderModel(RenderEntity);
 	}
 
 	for (RenderItem_t& RenderEntity : m_vecTransparentRenderList) {
-		RenderModel(RenderEntity.pEntity, RenderEntity.pModel, RenderEntity.pMaterial);
+		RenderModel(RenderEntity);
 	}
 }
 
-void CRenderer::RenderModel(CBaseModelEntity* pModelEntity, 
-	CModelResourceData* pEntityModel, CMaterialResourceData* pEntityMaterial) 
+void CRenderer::RenderModel(const RenderItem_t& RenderItem) 
 {
 	ID3D11DeviceContext* pContext = CGraphicsContext::GetInstance().GetDeviceContext();
-	CGraphicsContext::GetInstance().ApplyMaterialStates(pEntityMaterial->GetBlendMode(),
-		pEntityMaterial->GetCullMode(), pEntityMaterial->GetDepthMode());
+	//CGraphicsContext::GetInstance().ApplyMaterialStates(pEntityMaterial->GetBlendMode(),
+	//	pEntityMaterial->GetCullMode(), pEntityMaterial->GetDepthMode());
 
-	CResourceHandle hTexureHandle = pEntityMaterial->GetDiffuseTexture();
+	CGraphicsContext::GetInstance().ApplyMaterialStates(RenderItem.pMaterial->GetBlendMode(),
+		RenderItem.pMaterial->GetCullMode(), RenderItem.pMaterial->GetDepthMode());
+
+	const ModelSubmesh_t& Submesh = RenderItem.pModel->GetSubmeshes()[RenderItem.nSubmeshIndex];
+
+	CResourceHandle hTexureHandle = RenderItem.pMaterial->GetDiffuseTexture();
 	CTextureResourceData* pTextureData
 		= g_pResourceSystem->GetResource<CTextureResourceData>(hTexureHandle);
-	if (pTextureData == nullptr)
+	if (!pTextureData)
 		return;
 
-	if (m_GPUCache.find(pEntityModel) == m_GPUCache.end()) {
-		this->AddToStaticBuffers(pEntityModel);
+	if (m_GPUCache.find(RenderItem.pModel) == m_GPUCache.end()) {
+		this->AddToStaticBuffers(RenderItem.pModel);
 	}
 
-	ModelGPUData_t& ModelBufferData = m_GPUCache[pEntityModel];
-	UpdateBufferPerObject(pModelEntity, pEntityMaterial);
+	ModelGPUData_t& ModelBufferData = m_GPUCache[RenderItem.pModel];
+	UpdateBufferPerObject(RenderItem.pEntity, RenderItem.pMaterial);
 
 	ID3D11ShaderResourceView* pSRV = pTextureData->GetResourceView();
 
@@ -201,8 +210,8 @@ void CRenderer::RenderModel(CBaseModelEntity* pModelEntity,
 	pContext->PSSetConstantBuffers(0, 1, &m_pBufferPerObject);
 	pContext->PSSetShaderResources(0, 1, &pSRV);
 	pContext->DrawIndexed(
-		ModelBufferData.nIndexCount,
-		ModelBufferData.nIndexOffset,
+		Submesh.nIndexCount,
+		ModelBufferData.nIndexOffset + Submesh.nIndexOffset,
 		ModelBufferData.nVertexOffset
 	);
 }
