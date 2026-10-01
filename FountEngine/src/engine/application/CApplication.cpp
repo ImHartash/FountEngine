@@ -7,6 +7,7 @@
 
 #define MIN_CLIENT_WINDOW_SIZE_X 500
 #define MIN_CLIENT_WINDOW_SIZE_Y 600
+#define BOOL_ENABLE_4XMSAA true
 
 static CApplication* g_pApplication;
 
@@ -66,7 +67,7 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 	g_pEntitySystem->Initialize();
 
 	// Initializing Other
-	if (!CGraphicsContext::GetInstance().Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight)) {
+	if (!CGraphicsContext::GetInstance().Initialize(m_hMainWindow, m_nClientWidth, m_nClientHeight, BOOL_ENABLE_4XMSAA)) {
 		return false;
 	}
 

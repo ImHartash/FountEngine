@@ -40,21 +40,49 @@ bool CRenderer::Initialize() {
 	// !!! ONLY FOR TEST !!!
 	// Make this on scene, not here :DD
 	g_pFileSystem->MountPakFile("fountpak01.fntpk");
-	CDirectionalLight* pLight = g_pEntitySystem->CreateEntity<CDirectionalLight>(
+
+	CDirectionalLight* pKey = g_pEntitySystem->CreateEntity<CDirectionalLight>(
+		Vector3_t(0.10f, 0.10f, 0.10f),   
+		Vector3_t(0.90f, 0.90f, 0.90f), 
+		Vector3_t(1.00f, 1.00f, 1.00f),   
+		Vector3_t(-0.5f, -1.0f, -0.6f).Normalize()
+	);
+
+	CDirectionalLight* pFill = g_pEntitySystem->CreateEntity<CDirectionalLight>(
+		Vector3_t(0.15f, 0.15f, 0.15f),
+		Vector3_t(0.55f, 0.55f, 0.55f),
+		Vector3_t(0.00f, 0.00f, 0.00f),
+		Vector3_t(1.0f, -0.4f, -0.5f).Normalize()
+	);
+
+	CDirectionalLight* pRim = g_pEntitySystem->CreateEntity<CDirectionalLight>(
 		Vector3_t(0.05f, 0.05f, 0.05f),
-		Vector3_t(0.8f, 0.8f, 0.8f),
-		Vector3_t(1.f, 1.f, 1.f),
-		Vector3_t(-.2f, -1.f, -.3f).Normalize()
+		Vector3_t(0.70f, 0.70f, 0.75f),
+		Vector3_t(0.80f, 0.80f, 0.80f),
+		Vector3_t(0.4f, -0.3f, 1.0f).Normalize()
 	);
 
 	CBasePropEntity* pEntity = g_pEntitySystem->CreateEntity<CBasePropEntity>(
 		"models/character.fntmdl"
 	);
 
+	CBasePropEntity* pEntity2 = g_pEntitySystem->CreateEntity<CBasePropEntity>(
+		"models/character2.fntmdl"
+	);
+	pEntity2->SetPosition({ 65.f, 0.f, 0.f });
+	pEntity2->SetScale({ 3.5f, 3.5f, 3.5f });
+
+	CBasePropEntity* pEntity3 = g_pEntitySystem->CreateEntity<CBasePropEntity>(
+		"models/character3.fntmdl"
+	);
+	pEntity3->SetScale({ 8.f, 8.f, 8.f });
+	pEntity3->SetRotation({ 0.f, DEG_TO_RAD(180.f), 0.f });
+	pEntity3->SetPosition({ -65.f, 0.f, 0.f });
 	// END OF TESTING
 
-	m_PlayerCamera.SetPosition({ 0.f, 8.f, -35.f });
-	m_PlayerCamera.SetSpeed(5.f);
+	m_PlayerCamera.SetPosition({ 0.f, 8.f, 135.f });
+	m_PlayerCamera.SetSpeed(15.f);
+	m_PlayerCamera.SetRotation({ 0.f, DEG_TO_RAD(180.f), 0.f });
 
 	LOG_INFO("Renderer successfully initialized.");
 	return true;

@@ -11,7 +11,11 @@ CGraphicsContext& CGraphicsContext::GetInstance() {
 	return Instance;
 }
 
-bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
+bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight, bool bEnable4xMsaa) {
+	// Initializing vars
+	m_bEnable4xMsaa = bEnable4xMsaa;
+
+	// Initializing DX pipeline
 	UINT uCreateDeviceFlags = 0;
 #ifdef _DEBUG
 	uCreateDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -25,8 +29,14 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight) {
 	sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	sd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-	sd.SampleDesc.Count = 1;
-	sd.SampleDesc.Quality = 0;
+	if (m_bEnable4xMsaa) {
+		sd.SampleDesc.Count = 4;
+		sd.SampleDesc.Quality = 0;
+	}
+	else {
+		sd.SampleDesc.Count = 1;
+		sd.SampleDesc.Quality = 0;
+	}
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = 1;
 	sd.OutputWindow = hWnd;
@@ -103,8 +113,14 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	dxDepthStencilDesc.MipLevels = 1;
 	dxDepthStencilDesc.ArraySize = 1;
 	dxDepthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	dxDepthStencilDesc.SampleDesc.Count = 1;
-	dxDepthStencilDesc.SampleDesc.Quality = 0;
+	if (m_bEnable4xMsaa) {
+		dxDepthStencilDesc.SampleDesc.Count = 4;
+		dxDepthStencilDesc.SampleDesc.Quality = 0;
+	}
+	else {
+		dxDepthStencilDesc.SampleDesc.Count = 1;
+		dxDepthStencilDesc.SampleDesc.Quality = 0;
+	}
 	dxDepthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
 	dxDepthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	dxDepthStencilDesc.CPUAccessFlags = 0;

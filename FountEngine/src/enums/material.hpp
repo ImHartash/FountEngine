@@ -4,7 +4,8 @@
 enum class EMaterialBlendMode : uint32_t {
 	Opaque = 0,
 	AlphaBlend,
-	Additive
+	Additive,
+	AlphaTest
 };
 
 enum class EMaterialCullMode : uint32_t {

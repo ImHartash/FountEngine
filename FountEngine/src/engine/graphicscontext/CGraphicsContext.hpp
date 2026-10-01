@@ -8,7 +8,7 @@ class CGraphicsContext {
 public:
 	static CGraphicsContext& GetInstance();
 
-	bool Initialize(HWND hWnd, int nWidth, int nHeight);
+	bool Initialize(HWND hWnd, int nWidth, int nHeight, bool bEnable4xMsaa = false);
 
 	void Update(float flDeltaTime);
 	void Render();
@@ -30,6 +30,9 @@ private:
 	CGraphicsContext& operator=(const CGraphicsContext&) = delete;
 
 	void CreateRenderStates();
+
+	// Vars
+	bool m_bEnable4xMsaa;
 
 	// Matrices
 	DirectX::XMFLOAT4X4 m_mtProjection;
