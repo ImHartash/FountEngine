@@ -45,7 +45,7 @@ private:
 template<typename T>
 inline T* CResourceSystem::GetResourceByName(const std::string& strResourceName) {
 	if (m_mapPathToHandle.find(strResourceName) == m_mapPathToHandle.end()) {
-		LOG_WARNING("Failed to get resource %s: resource not loaded.");
+		LOG_WARNING("Failed to get resource %s: resource not loaded.", strResourceName.c_str());
 		return nullptr;
 	}
 
@@ -56,13 +56,13 @@ inline T* CResourceSystem::GetResourceByName(const std::string& strResourceName)
 template<typename T>
 inline T* CResourceSystem::GetResource(const CResourceHandle hResource) {
 	if (!hResource.IsValid() || hResource.GetIndex() >= m_vecResourceCache.size()) {
-		LOG_WARNING("Failed to get resource %s: resource handle is not valid.");
+		LOG_WARNING("Failed to get resource: resource handle is not valid.");
 		return nullptr;
 	}
 
 	const ResourceSlot_t& Slot = m_vecResourceCache[hResource.GetIndex()];
 	if (!Slot.bUsed) {
-		LOG_WARNING("Failed to get resource %s: resource slot is not in using.");
+		LOG_WARNING("Failed to get resource: resource slot is not in using.");
 		return nullptr;
 	}
 
