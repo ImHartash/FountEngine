@@ -34,6 +34,8 @@ public:
 	void LockCursor();
 	void UnlockCursor();
 
+	bool IsCursorLocked() const;
+
 	void Update();
 
 private:

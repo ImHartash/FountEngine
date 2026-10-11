@@ -42,16 +42,13 @@
     <ClCompile Include="src\systems\filesystem\CFileSystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entitites\basemodelentity\CBaseModelEntity.cpp">
+    <ClCompile Include="src\game\entities\basemodelentity\CBaseModelEntity.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\systems\resourcesystem\CResourceSystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\renderer\CRenderer.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entitites\cubeentity\CCubeEntity.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\systems\filesystem\fntpk\CFntPackFile.cpp">
@@ -63,22 +60,16 @@
     <ClCompile Include="src\game\resource\materialresourcedata\CMaterialResourceData.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entitites\light\baselightentity\CBaseLightEntity.cpp">
+    <ClCompile Include="src\game\entities\light\baselightentity\CBaseLightEntity.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entitites\light\directionallight\CDirectionalLight.cpp">
+    <ClCompile Include="src\game\entities\light\directionallight\CDirectionalLight.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entitites\light\pointlight\CPointLight.cpp">
+    <ClCompile Include="src\game\entities\light\pointlight\CPointLight.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\game\entitites\light\spotlight\CSpotLight.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entitites\sphereentity\CSphereEntity.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\game\entitites\spaceobject\CSpaceObject.cpp">
+    <ClCompile Include="src\game\entities\light\spotlight\CSpotLight.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +116,7 @@
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entitites\basemodelentity\CBaseModelEntity.hpp">
+    <ClInclude Include="src\game\entities\basemodelentity\CBaseModelEntity.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\math\types\angle.hpp">
@@ -147,9 +138,6 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entitites\cubeentity\CCubeEntity.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\math\random\CMathRandom.hpp">
@@ -200,28 +188,28 @@
     <ClInclude Include="src\enums\entity_flags.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entitites\light\baselightentity\CBaseLightEntity.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entitites\light\directionallight\CDirectionalLight.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils\LightBuffer_t.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entitites\light\pointlight\CPointLight.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="src\game\entitites\light\spotlight\CSpotLight.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="src\math\matrixutils\CMatrixUtils.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entitites\sphereentity\CSphereEntity.hpp">
+    <ClInclude Include="src\systems\filesystem\headers\fntmdl_submesh.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\game\entitites\spaceobject\CSpaceObject.hpp">
+    <ClInclude Include="src\game\entities\basepropentity\CBasePropEntity.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entities\light\baselightentity\CBaseLightEntity.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entities\light\directionallight\CDirectionalLight.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entities\light\pointlight\CPointLight.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\entities\light\spotlight\CSpotLight.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

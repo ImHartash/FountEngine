@@ -41,6 +41,8 @@ float4 FntPixelShader(VertexOut_t PixelIn) : SV_TARGET
     }
 
     float4 vTextureColor = gTexture.Sample(gSampler, PixelIn.vTexcoord);
+    clip(vTextureColor.a - 0.25f);
+    
     float3 vLightColor = vTextureColor.rgb * (vAmbient + vDiffuse) + vSpecular;
     
     if (gFogData.nFogEnabled != 0) {

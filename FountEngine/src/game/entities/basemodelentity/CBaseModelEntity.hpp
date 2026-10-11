@@ -14,9 +14,6 @@ public:
 	CResourceHandle GetModelResource() const { return m_hModelResource; }
 	void SetModelResource(const std::string& strModelResource);
 
-	CResourceHandle GetMaterialResource() const { return m_hMaterialResource; }
-	void SetMaterialResource(const std::string& strMaterialResource);
-
 	Vector3_t& GetPosition() { return m_vecPosition; }
 	Vector3_t& GetScale() { return m_vecScale; }
 	Angle_t& GetViewAngle() { return m_angViewAngle; }
@@ -29,7 +26,6 @@ protected:
 	uint32_t GetFlags() const override;
 
 	CResourceHandle m_hModelResource;
-	CResourceHandle m_hMaterialResource;
 
 	Vector3_t m_vecPosition;
 	Vector3_t m_vecScale
