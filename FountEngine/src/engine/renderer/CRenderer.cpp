@@ -66,9 +66,9 @@ bool CRenderer::Initialize() {
 	);
 	// END OF TESTING
 
-	m_PlayerCamera.SetPosition({ 0.f, 8.f, 135.f });
-	m_PlayerCamera.SetSpeed(15.f);
-	m_PlayerCamera.SetRotation({ 0.f, DEG_TO_RAD(180.f), 0.f });
+	m_PlayerCamera.SetPosition({ -24.f, 13.f, 0.f });
+	m_PlayerCamera.SetSpeed(3.f);
+	m_PlayerCamera.SetRotation({ DEG_TO_RAD(-30.f), DEG_TO_RAD(90.f), 0});
 
 	LOG_INFO("Renderer successfully initialized.");
 	return true;
@@ -111,12 +111,13 @@ void CRenderer::PrepareFrame() {
 
 				if (pMaterial->GetBlendMode() == EMaterialBlendMode::Opaque) {
 					m_vecOpaqueRenderList.push_back(RenderItem);
+					continue;
 				}
 
 				Vector3_t vecPositionDelta = pModelEntity->GetPosition() - vecCameraPosition;
 				float flDistanceSq = vecPositionDelta.x * vecPositionDelta.x + vecPositionDelta.y * vecPositionDelta.y
-					* vecPositionDelta.z * vecPositionDelta.z;
-				//RenderItem.flDistanceSq = flDistanceSq;
+					+ vecPositionDelta.z * vecPositionDelta.z;
+				RenderItem.flDistanceSq = flDistanceSq;
 				m_vecTransparentRenderList.push_back(RenderItem);
 			}
 

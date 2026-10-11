@@ -135,6 +135,10 @@ void CInputSystem::UnlockCursor() {
 	m_bCursorLocked = false;
 }
 
+bool CInputSystem::IsCursorLocked() const {
+	return m_bCursorLocked;
+}
+
 void CInputSystem::Update() {
 	m_vecPrevKeys = m_vecKeys;
 	m_vecPrevMouseButtons = m_vecMouseButtons;

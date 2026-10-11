@@ -140,7 +140,7 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 
 	m_pDeviceContext->RSSetViewports(1, &m_dxViewport);
 
-	DirectX::XMMATRIX mtProjection = DirectX::XMMatrixPerspectiveFovLH(DEG_TO_RAD(75), static_cast<float>(nWidth) / nHeight, 1.f, 1000.f);
+	DirectX::XMMATRIX mtProjection = DirectX::XMMatrixPerspectiveFovLH(DEG_TO_RAD(75), static_cast<float>(nWidth) / nHeight, 0.1f, 1000.f);
 	DirectX::XMStoreFloat4x4(&m_mtProjection, mtProjection);
 }
 
@@ -221,6 +221,8 @@ void CGraphicsContext::CreateRenderStates() {
 	D3D11_RASTERIZER_DESC BackDesc = {};
 	BackDesc.FillMode = D3D11_FILL_SOLID;
 	BackDesc.CullMode = D3D11_CULL_BACK;
+	BackDesc.FrontCounterClockwise = FALSE;
+	BackDesc.DepthClipEnable = TRUE;
 	HR(m_pDevice->CreateRasterizerState(&BackDesc, &m_pRasterStates[static_cast<int>(EMaterialCullMode::Back)]));
 
 	D3D11_RASTERIZER_DESC FrontDesc = BackDesc;
