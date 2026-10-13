@@ -3,7 +3,7 @@
 #include <array>
 
 #define KEY_COUNT 256
-#define MOUSE_BUTTON_COUNT 5
+#define MOUSE_BUTTON_COUNT 6
 
 class CInputSystem {
 public:
@@ -12,11 +12,11 @@ public:
 
 	void Initialize(HWND hWnd);
 
-	void OnKeyDown(UINT uKey);
-	void OnKeyUp(UINT uKey);
+	//void OnKeyDown(UINT uKey);
+	//void OnKeyUp(UINT uKey);
 
-	void OnMouseDown(UINT nMouseButton);
-	void OnMouseUp(UINT nMouseButton);
+	//void OnMouseDown(UINT nMouseButton);
+	//void OnMouseUp(UINT nMouseButton);
 
 	bool IsKeyDown(UINT uKey) const;
 	bool IsKeyPressed(UINT uKey) const;
@@ -26,7 +26,7 @@ public:
 	bool IsMouseButtonPressed(UINT nKey) const;
 	bool IsMouseButtonReleased(UINT nKey) const;
 
-	void ProcessRawInput(LPARAM lParam);
+	void ProcessRawInput(WPARAM wParam, LPARAM lParam);
 
 	float GetMouseDeltaX() const;
 	float GetMouseDeltaY() const;
@@ -39,6 +39,14 @@ public:
 	void Update();
 
 private:
+	void OnKeyDown(UINT uKey);
+	void OnKeyUp(UINT uKey);
+
+	void OnMouseDown(UINT nMouseButton);
+	void OnMouseUp(UINT nMouseButton);
+
+	RAWINPUT m_RawInputBuffer{};
+
 	std::array<bool, KEY_COUNT> m_vecKeys;
 	std::array<bool, KEY_COUNT> m_vecPrevKeys;
 

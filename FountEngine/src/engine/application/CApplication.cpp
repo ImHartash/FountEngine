@@ -174,20 +174,8 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_KEYDOWN:
-		g_pInputSystem->OnKeyDown((UINT)wParam);
-		return 0;
-	case WM_KEYUP:
-		g_pInputSystem->OnKeyUp((UINT)wParam);
-		return 0;
-	case WM_LBUTTONDOWN:
-		g_pInputSystem->OnMouseDown(0x1);
-		return 0;
-	case WM_LBUTTONUP:
-		g_pInputSystem->OnMouseUp(0x1);
-		return 0;
 	case WM_INPUT:
-		g_pInputSystem->ProcessRawInput(lParam);
+		g_pInputSystem->ProcessRawInput(wParam, lParam);
 		return 0;
 	}
 

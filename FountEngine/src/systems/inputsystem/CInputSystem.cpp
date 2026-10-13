@@ -1,6 +1,7 @@
 #include "CInputSystem.hpp"
 #include <windowsx.h>
 
+#include "systems/CSystemManager.hpp"
 #include "systems/logsystem/CLogSystem.hpp"
 
 // UNDER THE DEVELOPING
@@ -10,33 +11,18 @@
 void CInputSystem::Initialize(HWND hWnd) {
 	m_hWnd = hWnd;
 
-	RAWINPUTDEVICE rid{};
-	rid.usUsagePage = 0x01;
-	rid.usUsage = 0x02;
-	rid.dwFlags = 0;
-	rid.hwndTarget = hWnd;
+	RAWINPUTDEVICE RID[2];
+	RID[0].usUsagePage = 0x01; // Mouse
+	RID[0].usUsage = 0x02;
+	RID[0].dwFlags = 0;
+	RID[0].hwndTarget = hWnd;
 
-	RegisterRawInputDevices(&rid, 1, sizeof(rid));
-}
+	RID[1].usUsagePage = 0x01; // Keyboard
+	RID[1].usUsage = 0x06;
+	RID[1].dwFlags = 0;
+	RID[1].hwndTarget = hWnd;
 
-void CInputSystem::OnKeyDown(UINT uKey) {
-	if (uKey < KEY_COUNT)
-		m_vecKeys[uKey] = true;
-}
-
-void CInputSystem::OnKeyUp(UINT uKey) {
-	if (uKey < KEY_COUNT)
-		m_vecKeys[uKey] = false;
-}
-
-void CInputSystem::OnMouseDown(UINT nMouseButton) {
-	if (nMouseButton < MOUSE_BUTTON_COUNT)
-		m_vecMouseButtons[nMouseButton] = true;
-}
-
-void CInputSystem::OnMouseUp(UINT nMouseButton) {
-	if (nMouseButton < MOUSE_BUTTON_COUNT)
-		m_vecMouseButtons[nMouseButton] = false;
+	RegisterRawInputDevices(RID, 2, sizeof(RAWINPUTDEVICE));
 }
 
 bool CInputSystem::IsKeyDown(UINT uKey) const {
@@ -63,32 +49,38 @@ bool CInputSystem::IsMouseButtonReleased(UINT nKey) const {
 	return nKey < MOUSE_BUTTON_COUNT && !m_vecMouseButtons[nKey] && m_vecPrevMouseButtons[nKey];
 }
 
-void CInputSystem::ProcessRawInput(LPARAM lParam) {
-	UINT uSize = 0;
-	GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &uSize, sizeof(RAWINPUTHEADER));
-	if (uSize == 0)
+void CInputSystem::ProcessRawInput(WPARAM wParam, LPARAM lParam) {	
+	UINT nSize = sizeof(RAWINPUT);
+	if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &m_RawInputBuffer, &nSize, sizeof(RAWINPUTHEADER)) > nSize) {
 		return;
-
-	std::vector<BYTE> vecBuffer(uSize);
-	if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, vecBuffer.data(), &uSize, sizeof(RAWINPUTHEADER)) != uSize)
-		return;
-
-	RAWINPUT* pRaw = reinterpret_cast<RAWINPUT*>(vecBuffer.data());
-	if (pRaw->header.dwType == RIM_TYPEMOUSE) {
-		m_flMouseDeltaX += static_cast<float>(pRaw->data.mouse.lLastX);
-		m_flMouseDeltaY += static_cast<float>(pRaw->data.mouse.lLastY);
 	}
 
-	if (m_bCursorLocked) {
-		RECT rArea;
-		GetClientRect(m_hWnd, &rArea);
+	if (m_RawInputBuffer.header.dwType == RIM_TYPEMOUSE) {
+		const RAWMOUSE* pMouse = &m_RawInputBuffer.data.mouse;
+		if (!(pMouse->usFlags & MOUSE_MOVE_ABSOLUTE)) {
+			m_flMouseDeltaX += pMouse->lLastX;
+			m_flMouseDeltaY += pMouse->lLastY;
+		}
 
-		POINT ptCenter;
-		ptCenter.x = (rArea.right - rArea.left) / 2;
-		ptCenter.y = (rArea.bottom - rArea.top) / 2;
+		if (pMouse->usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) OnMouseDown(VK_LBUTTON);
+		if (pMouse->usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) OnMouseUp(VK_LBUTTON);
 
-		ClientToScreen(m_hWnd, &ptCenter);
-		SetCursorPos(ptCenter.x, ptCenter.y);
+		if (pMouse->usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN) OnMouseDown(VK_RBUTTON);
+		if (pMouse->usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP) OnMouseUp(VK_RBUTTON);
+
+		if (pMouse->usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN) OnMouseDown(VK_MBUTTON);
+		if (pMouse->usButtonFlags & RI_MOUSE_MIDDLE_BUTTON_UP) OnMouseUp(VK_MBUTTON);
+
+		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_4_DOWN) OnMouseDown(VK_XBUTTON1);
+		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_4_UP) OnMouseUp(VK_XBUTTON1);
+
+		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_5_DOWN) OnMouseDown(VK_XBUTTON2);
+		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_5_UP) OnMouseUp(VK_XBUTTON2);
+	}
+	else if (m_RawInputBuffer.header.dwType == RIM_TYPEKEYBOARD) {
+		const RAWKEYBOARD* pKeyboard = &m_RawInputBuffer.data.keyboard;
+		if (pKeyboard->Flags & RI_KEY_BREAK) OnKeyUp(pKeyboard->VKey);
+		else OnKeyDown(pKeyboard->VKey);
 	}
 }
 
@@ -147,7 +139,29 @@ void CInputSystem::Update() {
 	m_flMouseDeltaY = 0.0f;
 }
 
-CInputSystem::CInputSystem() : m_flMouseDeltaX(0.0f), m_flMouseDeltaY(0.0f), m_bCursorLocked(false), m_hWnd(nullptr) {
+void CInputSystem::OnKeyDown(UINT uKey) {
+	if (uKey < KEY_COUNT)
+		m_vecKeys[uKey] = true;
+}
+
+void CInputSystem::OnKeyUp(UINT uKey) {
+	if (uKey < KEY_COUNT)
+		m_vecKeys[uKey] = false;
+}
+
+void CInputSystem::OnMouseDown(UINT nMouseButton) {
+	if (nMouseButton < MOUSE_BUTTON_COUNT)
+		m_vecMouseButtons[nMouseButton] = true;
+}
+
+void CInputSystem::OnMouseUp(UINT nMouseButton) {
+	if (nMouseButton < MOUSE_BUTTON_COUNT)
+		m_vecMouseButtons[nMouseButton] = false;
+}
+
+CInputSystem::CInputSystem() 
+	: m_flMouseDeltaX(0.0f), m_flMouseDeltaY(0.0f),
+	m_bCursorLocked(false), m_hWnd(nullptr) {
 	m_vecKeys.fill(false);
 	m_vecPrevKeys.fill(false);
 
