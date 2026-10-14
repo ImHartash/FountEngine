@@ -4,6 +4,8 @@
 #include "systems/CSystemManager.hpp"
 #include "systems/logsystem/CLogSystem.hpp"
 
+#define MOUSE_DELTA_UNIT 120.f
+
 // UNDER THE DEVELOPING
 // I'LL DO THIS LATER/
 // - ImHartash :D
@@ -51,7 +53,7 @@ bool CInputSystem::IsMouseButtonReleased(UINT nKey) const {
 
 void CInputSystem::ProcessRawInput(WPARAM wParam, LPARAM lParam) {	
 	UINT nSize = sizeof(RAWINPUT);
-	if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &m_RawInputBuffer, &nSize, sizeof(RAWINPUTHEADER)) > nSize) {
+	if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, &m_RawInputBuffer, &nSize, sizeof(RAWINPUTHEADER)) == (UINT)-1) {
 		return;
 	}
 
@@ -76,6 +78,9 @@ void CInputSystem::ProcessRawInput(WPARAM wParam, LPARAM lParam) {
 
 		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_5_DOWN) OnMouseDown(VK_XBUTTON2);
 		if (pMouse->usButtonFlags & RI_MOUSE_BUTTON_5_UP) OnMouseUp(VK_XBUTTON2);
+
+		if (pMouse->usButtonFlags & RI_MOUSE_WHEEL) 
+			m_flMouseWheelDelta += static_cast<float>((short)pMouse->usButtonData) / MOUSE_DELTA_UNIT;
 	}
 	else if (m_RawInputBuffer.header.dwType == RIM_TYPEKEYBOARD) {
 		const RAWKEYBOARD* pKeyboard = &m_RawInputBuffer.data.keyboard;
@@ -92,36 +97,30 @@ float CInputSystem::GetMouseDeltaY() const {
 	return m_flMouseDeltaY;
 }
 
-void CInputSystem::LockCursor() {
-	if (m_bCursorLocked)
-		return;
+float CInputSystem::GetMouseWheelDelta() const {
+	return m_flMouseWheelDelta;
+}
 
-	ShowCursor(FALSE);
+void CInputSystem::LockCursor() {
+	while (ShowCursor(FALSE) >= 0) {}
 
 	RECT rArea;
 	GetClientRect(m_hWnd, &rArea);
 
-	POINT ul = { rArea.left, rArea.top };
-	POINT lr = { rArea.right, rArea.bottom };
+	POINT ptCenter;
+	ptCenter.x = (rArea.right - rArea.left) / 2;
+	ptCenter.y = (rArea.bottom - rArea.top) / 2;
+	ClientToScreen(m_hWnd, &ptCenter);
 
-	ClientToScreen(m_hWnd, &ul);
-	ClientToScreen(m_hWnd, &lr);
-
-	rArea.left = ul.x;
-	rArea.top = ul.y;
-	rArea.right = lr.x;
-	rArea.bottom = lr.y;
-
-	ClipCursor(&rArea);
+	RECT rClip = { ptCenter.x, ptCenter.y, ptCenter.x + 1, ptCenter.y + 1 };
+	ClipCursor(&rClip);
 
 	m_bCursorLocked = true;
 }
 
 void CInputSystem::UnlockCursor() {
-	if (!m_bCursorLocked)
-		return;
+	while (ShowCursor(TRUE) < 0) {}
 
-	ShowCursor(TRUE);
 	ClipCursor(nullptr);
 
 	m_bCursorLocked = false;
@@ -137,6 +136,7 @@ void CInputSystem::Update() {
 
 	m_flMouseDeltaX = 0.0f;
 	m_flMouseDeltaY = 0.0f;
+	m_flMouseWheelDelta = 0.0f;
 }
 
 void CInputSystem::OnKeyDown(UINT uKey) {
@@ -160,7 +160,7 @@ void CInputSystem::OnMouseUp(UINT nMouseButton) {
 }
 
 CInputSystem::CInputSystem() 
-	: m_flMouseDeltaX(0.0f), m_flMouseDeltaY(0.0f),
+	: m_flMouseDeltaX(0.0f), m_flMouseDeltaY(0.0f), m_flMouseWheelDelta(0.0f),
 	m_bCursorLocked(false), m_hWnd(nullptr) {
 	m_vecKeys.fill(false);
 	m_vecPrevKeys.fill(false);

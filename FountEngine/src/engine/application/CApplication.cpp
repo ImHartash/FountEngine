@@ -17,7 +17,7 @@ LRESULT CALLBACK OnWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 CApplication::CApplication() 
 	: m_hInstance(nullptr), m_hMainWindow(nullptr), m_nClientWidth(0), m_nClientHeight(0), 
-	m_bPaused(false), m_bMinimized(false), m_bMaximized(false), m_bResizing(false)
+	m_bPaused(false), m_bMinimized(false), m_bMaximized(false), m_bResizing(false), m_bCursorLocked(false)
 {
 	g_pApplication = this;
 }
@@ -113,10 +113,17 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (LOWORD(wParam) == WA_INACTIVE) {
 			m_bPaused = true;
 			m_AppTimer.Stop();
+
+			// Unlocking cursor
+			m_bCursorLocked = g_pInputSystem->IsCursorLocked();
+			if (m_bCursorLocked) g_pInputSystem->UnlockCursor();
 		}
 		else {
 			m_bPaused = false;
 			m_AppTimer.Start();
+
+			// Locking cursor
+			if (m_bCursorLocked) g_pInputSystem->LockCursor();
 		}
 		return 0;
 	case WM_SIZE:

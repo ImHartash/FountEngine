@@ -12,12 +12,6 @@ public:
 
 	void Initialize(HWND hWnd);
 
-	//void OnKeyDown(UINT uKey);
-	//void OnKeyUp(UINT uKey);
-
-	//void OnMouseDown(UINT nMouseButton);
-	//void OnMouseUp(UINT nMouseButton);
-
 	bool IsKeyDown(UINT uKey) const;
 	bool IsKeyPressed(UINT uKey) const;
 	bool IsKeyReleased(UINT uKey) const;
@@ -30,6 +24,7 @@ public:
 
 	float GetMouseDeltaX() const;
 	float GetMouseDeltaY() const;
+	float GetMouseWheelDelta() const;
 
 	void LockCursor();
 	void UnlockCursor();
@@ -55,6 +50,7 @@ private:
 
 	float m_flMouseDeltaX;
 	float m_flMouseDeltaY;
+	float m_flMouseWheelDelta;
 
 	bool m_bCursorLocked;
 
