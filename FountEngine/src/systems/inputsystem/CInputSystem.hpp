@@ -10,7 +10,7 @@ public:
 	CInputSystem();
 	~CInputSystem() = default;
 
-	void Initialize(HWND hWnd);
+	bool Initialize(HWND hWnd);
 
 	bool IsKeyDown(UINT uKey) const;
 	bool IsKeyPressed(UINT uKey) const;
@@ -21,6 +21,7 @@ public:
 	bool IsMouseButtonReleased(UINT nKey) const;
 
 	void ProcessRawInput(WPARAM wParam, LPARAM lParam);
+	void ClearKeyStates();
 
 	float GetMouseDeltaX() const;
 	float GetMouseDeltaY() const;
@@ -47,6 +48,10 @@ private:
 
 	std::array<bool, MOUSE_BUTTON_COUNT> m_vecMouseButtons;
 	std::array<bool, MOUSE_BUTTON_COUNT> m_vecPrevMouseButtons;
+
+	//std::array<bool, KEY_COUNT> m_vecKeys;
+	//std::array<bool, KEY_COUNT> m_vecReleasedKeys;
+	//std::array<bool, KEY_COUNT> m_vecPressedKeys;
 
 	float m_flMouseDeltaX;
 	float m_flMouseDeltaY;

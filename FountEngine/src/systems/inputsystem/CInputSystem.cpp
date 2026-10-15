@@ -8,9 +8,10 @@
 
 // UNDER THE DEVELOPING
 // I'LL DO THIS LATER/
+// NOT ACTUAL :D:D:D:D:D:D:D
 // - ImHartash :D
 
-void CInputSystem::Initialize(HWND hWnd) {
+bool CInputSystem::Initialize(HWND hWnd) {
 	m_hWnd = hWnd;
 
 	RAWINPUTDEVICE RID[2];
@@ -24,7 +25,7 @@ void CInputSystem::Initialize(HWND hWnd) {
 	RID[1].dwFlags = 0;
 	RID[1].hwndTarget = hWnd;
 
-	RegisterRawInputDevices(RID, 2, sizeof(RAWINPUTDEVICE));
+	return static_cast<bool>(RegisterRawInputDevices(RID, 2, sizeof(RAWINPUTDEVICE)));
 }
 
 bool CInputSystem::IsKeyDown(UINT uKey) const {
@@ -89,6 +90,14 @@ void CInputSystem::ProcessRawInput(WPARAM wParam, LPARAM lParam) {
 	}
 }
 
+void CInputSystem::ClearKeyStates() {
+	m_vecKeys.fill(false);
+	m_vecPrevKeys.fill(false);
+
+	m_vecMouseButtons.fill(false);
+	m_vecPrevMouseButtons.fill(false);
+}
+
 float CInputSystem::GetMouseDeltaX() const {
 	return m_flMouseDeltaX;
 }
@@ -113,7 +122,10 @@ void CInputSystem::LockCursor() {
 	ClientToScreen(m_hWnd, &ptCenter);
 
 	RECT rClip = { ptCenter.x, ptCenter.y, ptCenter.x + 1, ptCenter.y + 1 };
-	ClipCursor(&rClip);
+	if (!ClipCursor(&rClip)) {
+		LOG_WARNING("Failed to lock cursor..");
+		return;
+	}
 
 	m_bCursorLocked = true;
 }
@@ -161,10 +173,7 @@ void CInputSystem::OnMouseUp(UINT nMouseButton) {
 
 CInputSystem::CInputSystem() 
 	: m_flMouseDeltaX(0.0f), m_flMouseDeltaY(0.0f), m_flMouseWheelDelta(0.0f),
-	m_bCursorLocked(false), m_hWnd(nullptr) {
-	m_vecKeys.fill(false);
-	m_vecPrevKeys.fill(false);
-
-	m_vecMouseButtons.fill(false);
-	m_vecPrevMouseButtons.fill(false);
+	m_bCursorLocked(false), m_hWnd(nullptr) 
+{
+	ClearKeyStates();
 }
