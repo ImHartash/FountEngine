@@ -31,6 +31,7 @@ private:
 	bool m_bMinimized;
 	bool m_bMaximized;
 	bool m_bResizing;
+	bool m_bCursorLocked;
 
 	std::wstring m_wstrWindowCaption;
 };

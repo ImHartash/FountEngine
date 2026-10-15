@@ -17,7 +17,7 @@ LRESULT CALLBACK OnWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 CApplication::CApplication() 
 	: m_hInstance(nullptr), m_hMainWindow(nullptr), m_nClientWidth(0), m_nClientHeight(0), 
-	m_bPaused(false), m_bMinimized(false), m_bMaximized(false), m_bResizing(false)
+	m_bPaused(false), m_bMinimized(false), m_bMaximized(false), m_bResizing(false), m_bCursorLocked(false)
 {
 	g_pApplication = this;
 }
@@ -63,7 +63,7 @@ bool CApplication::Initialize(HINSTANCE hInstance, const std::wstring& wstrWindo
 
 	// Initializing systems
 	g_pFileSystem->Initialize();
-	g_pInputSystem->Initialize(m_hMainWindow);
+	if (!g_pInputSystem->Initialize(m_hMainWindow)) return false;
 	g_pEntitySystem->Initialize();
 
 	// Initializing Other
@@ -113,10 +113,20 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 		if (LOWORD(wParam) == WA_INACTIVE) {
 			m_bPaused = true;
 			m_AppTimer.Stop();
+
+			// Unlocking cursor
+			m_bCursorLocked = g_pInputSystem->IsCursorLocked();
+			if (m_bCursorLocked) g_pInputSystem->UnlockCursor();
+
+			// Clearing key states
+			g_pInputSystem->ClearKeyStates();
 		}
 		else {
 			m_bPaused = false;
 			m_AppTimer.Start();
+
+			// Locking cursor
+			if (m_bCursorLocked) g_pInputSystem->LockCursor();
 		}
 		return 0;
 	case WM_SIZE:
@@ -133,23 +143,27 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 				m_bMinimized = false;
 				m_bMaximized = true;
 				CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
+				if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->LockCursor();
 			}
 			else if (wParam == SIZE_RESTORED) {
 				if (m_bMinimized) {
 					m_bPaused = false;
 					m_bMinimized = false;
 					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
+					if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->LockCursor();
 				}
 				else if (m_bMaximized) {
 					m_bPaused = false;
 					m_bMaximized = false;
 					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
+					if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->LockCursor();
 				}
 				else if (m_bResizing) {
 					// ...
 				}
 				else {
 					CGraphicsContext::GetInstance().OnResize(m_nClientWidth, m_nClientHeight);
+					if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->LockCursor();
 				}
 			}
 		}
@@ -174,20 +188,8 @@ LRESULT CApplication::HandleMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
-	case WM_KEYDOWN:
-		g_pInputSystem->OnKeyDown((UINT)wParam);
-		return 0;
-	case WM_KEYUP:
-		g_pInputSystem->OnKeyUp((UINT)wParam);
-		return 0;
-	case WM_LBUTTONDOWN:
-		g_pInputSystem->OnMouseDown(0x1);
-		return 0;
-	case WM_LBUTTONUP:
-		g_pInputSystem->OnMouseUp(0x1);
-		return 0;
 	case WM_INPUT:
-		g_pInputSystem->ProcessRawInput(lParam);
+		g_pInputSystem->ProcessRawInput(wParam, lParam);
 		return 0;
 	}
 

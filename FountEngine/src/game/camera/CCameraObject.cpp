@@ -1,6 +1,9 @@
 #include "CCameraObject.hpp"
 #include "systems/CSystemManager.hpp"
 #include "systems/inputsystem/CInputSystem.hpp"
+#include "systems/logsystem/CLogSystem.hpp"
+#include "math/mathutils/CMathUtils.hpp"
+#include "math/defines.hpp"
 
 CCameraObject::CCameraObject()
 	: m_vecPosition(0, 0, 0), m_vecRotation(0, 0, 0),
@@ -12,12 +15,14 @@ CCameraObject::CCameraObject()
 void CCameraObject::Update(float flDeltaTime) {
 	static float flSensitivity = 0.002f;
 
-	if (g_pInputSystem->IsMouseButtonDown(0x1)) {
+	if (g_pInputSystem->IsMouseButtonDown(0x1) || g_pInputSystem->IsCursorLocked()) {
 		m_vecRotation += Vector3_t(
-			flSensitivity * g_pInputSystem->GetMouseDeltaY(),
-			-flSensitivity * g_pInputSystem->GetMouseDeltaX(),
+			-flSensitivity * g_pInputSystem->GetMouseDeltaY(),
+			flSensitivity * g_pInputSystem->GetMouseDeltaX(),
 			0.f
 		);
+
+		m_vecRotation.x = CMathUtils::Clamp(m_vecRotation.x, -(M_PIDIV2 - 0.01f), M_PIDIV2 - 0.01f);
 	}
 
 	float flPitch = m_vecRotation.x;
@@ -49,6 +54,21 @@ void CCameraObject::Update(float flDeltaTime) {
 	}
 	if (g_pInputSystem->IsKeyDown(VK_CONTROL)) {
 		m_vecPosition -= vecUp * m_flCameraSpeed * flDeltaTime;
+	}
+
+	// Keybinds
+	if (g_pInputSystem->IsKeyPressed('L')) {
+		if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->UnlockCursor();
+		else g_pInputSystem->LockCursor();
+	}
+
+	if (g_pInputSystem->IsKeyPressed(VK_ESCAPE)) {
+		if (g_pInputSystem->IsCursorLocked()) g_pInputSystem->UnlockCursor();
+	}
+
+	if (g_pInputSystem->GetMouseWheelDelta() != 0.f) {
+		m_flCameraSpeed = CMathUtils::Clamp(m_flCameraSpeed + g_pInputSystem->GetMouseWheelDelta(), 0.f, 100.f);
+		LOG_DEBUG("Set new camera speed - %.1f", m_flCameraSpeed);
 	}
 
 	DirectX::XMVECTOR xmPos = m_vecPosition.DXAsVector();
