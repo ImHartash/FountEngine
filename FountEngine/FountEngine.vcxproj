@@ -182,6 +182,7 @@
     <ClInclude Include="src\game\baseentity\entityhandle\CEntityHandle.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
+    <ClInclude Include="src\game\effects\IPostEffect.hpp" />
     <ClInclude Include="src\game\entities\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entities\basepropentity\CBasePropEntity.hpp" />
     <ClInclude Include="src\game\entities\light\baselightentity\CBaseLightEntity.hpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="src\systems\logsystem\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
+    <ClInclude Include="src\systems\postprocesssystem\CPostProcessSystem.hpp" />
     <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp" />
     <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
