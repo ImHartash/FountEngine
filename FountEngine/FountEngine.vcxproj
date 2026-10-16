@@ -170,6 +170,7 @@
     <ClCompile Include="src\systems\inputsystem\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logsystem\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
+    <ClCompile Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.cpp" />
     <ClCompile Include="src\systems\resourcesystem\CResourceSystem.cpp" />
     <ClCompile Include="src\wmain.cpp" />
   </ItemGroup>
@@ -216,6 +217,7 @@
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
     <ClInclude Include="src\systems\postprocesssystem\CPostProcessSystem.hpp" />
+    <ClInclude Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.hpp" />
     <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp" />
     <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
