@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "enums/material.hpp"
+#include "systems/postprocesssystem/CDXRenderTarget/CDXRenderTarget.hpp"
 
 class CGraphicsContext {
 public:
@@ -33,6 +34,7 @@ private:
 
 	// Vars
 	bool m_bEnable4xMsaa;
+	CDXRenderTarget m_OffscreenRenderTarget;
 
 	// Matrices
 	DirectX::XMFLOAT4X4 m_mtProjection;

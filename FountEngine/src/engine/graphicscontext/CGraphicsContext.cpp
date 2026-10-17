@@ -72,6 +72,9 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight, bool bEnab
 		return false;
 	}
 
+	m_OffscreenRenderTarget.Initialize(m_pDevice, nWidth, nHeight, 
+		DXGI_FORMAT_R16G16B16A16_FLOAT, RT_CREATE_FLAG_RTV | RT_CREATE_FLAG_SRV);
+
 	CreateRenderStates();
 	OnResize(nWidth, nHeight);
 	return true;
@@ -109,6 +112,8 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
 	HR(m_pDevice->CreateRenderTargetView(pBackBuffer, 0, &m_pRenderTargetView));
 	RELEASE_COM(pBackBuffer);
+
+	m_OffscreenRenderTarget.Resize(m_pDevice, nWidth, nHeight);
 
 	D3D11_TEXTURE2D_DESC dxDepthStencilDesc;
 	dxDepthStencilDesc.Width = nWidth;

@@ -2,5 +2,8 @@
 
 class CPostProcessSystem {
 public:
-	bool Initialize();
+	bool Initialize(int nWidth, int nHeight);
+
+private:
+	
 };

@@ -157,6 +157,7 @@
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
     <ClCompile Include="src\engine\renderer\CRenderer.cpp" />
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
+    <ClCompile Include="src\game\effects\tonemapping\CToneMappingEffect.cpp" />
     <ClCompile Include="src\game\entities\basemodelentity\CBaseModelEntity.cpp" />
     <ClCompile Include="src\game\entities\light\baselightentity\CBaseLightEntity.cpp" />
     <ClCompile Include="src\game\entities\light\directionallight\CDirectionalLight.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
     <ClInclude Include="src\game\effects\IPostEffect.hpp" />
+    <ClInclude Include="src\game\effects\tonemapping\CToneMappingEffect.hpp" />
     <ClInclude Include="src\game\entities\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entities\basepropentity\CBasePropEntity.hpp" />
     <ClInclude Include="src\game\entities\light\baselightentity\CBaseLightEntity.hpp" />
@@ -251,6 +253,12 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FntPixelShader</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FntPixelShader</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="shaders\postprocess\postprocess_common.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="shaders\vertex_shader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

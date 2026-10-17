@@ -53,7 +53,7 @@ void CDXRenderTarget::Initialize(ID3D11Device* pDevice, uint32_t nWidth,
 	TextureDesc.CPUAccessFlags = 0;
 	TextureDesc.MiscFlags = 0;
 
-	HR(pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_pTexture));
+	HR(pDevice->CreateTexture2D(&TextureDesc, nullptr, &m_pTexture))
 	if (nCreateFlags & RT_CREATE_FLAG_RTV) HR(pDevice->CreateRenderTargetView(m_pTexture, nullptr, &m_pRenderTargetView));
 	if (nCreateFlags & RT_CREATE_FLAG_SRV) HR(pDevice->CreateShaderResourceView(m_pTexture, nullptr, &m_pShaderResourceView));
 	if (nCreateFlags & RT_CREATE_FLAG_UAV) HR(pDevice->CreateUnorderedAccessView(m_pTexture, nullptr, &m_pUnorderedAccessView));

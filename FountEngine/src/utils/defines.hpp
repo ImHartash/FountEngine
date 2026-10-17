@@ -2,7 +2,7 @@
 #include <cassert>
 #include <intrin.h>
 
-#define RELEASE_COM(x) if (x) { x->Release(); x = 0; }
+#define RELEASE_COM(x) do { if (x) { (x)->Release(); (x) = nullptr; } } while (0)
 
 #if defined(DEBUG) || defined(_DEBUG)
 #ifndef HR
