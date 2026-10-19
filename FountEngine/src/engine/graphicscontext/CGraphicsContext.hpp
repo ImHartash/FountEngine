@@ -47,6 +47,7 @@ private:
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11DepthStencilView* m_pDepthStencilView;
 	ID3D11Texture2D* m_pDepthStencilBuffer;
+	ID3D11Texture2D* m_pBackBuffer;
 
 	ID3D11BlendState* m_pBlendStates[3] = { nullptr, nullptr, nullptr };
 	ID3D11DepthStencilState* m_pDepthStates[3] = { nullptr, nullptr, nullptr };

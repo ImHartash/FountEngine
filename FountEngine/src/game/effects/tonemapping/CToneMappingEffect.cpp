@@ -14,8 +14,7 @@ bool CToneMappingEffect::InitializeEffect(const std::wstring& strShaderFilename,
 	ID3DBlob* pShaderBlob = nullptr;
 	HRESULT hResult = D3DReadFileToBlob(strShaderFilename.c_str(), &pShaderBlob);
 	if (FAILED(hResult)) {
-		std::string strShader(strShaderFilename.begin(), strShaderFilename.end());
-		LOG_WARNING("Failed to initialize effect %s [D3DReadFileToBlob]", strShader.c_str());
+		LOG_WARNING("Failed to initialize tone-mapping effect [D3DReadFileToBlob]");
 		RELEASE_COM(pShaderBlob);
 		return false;
 	}
@@ -27,8 +26,7 @@ bool CToneMappingEffect::InitializeEffect(const std::wstring& strShaderFilename,
 		&m_pEffectShader
 	);
 	if (FAILED(hResult)) {
-		std::string strShader(strShaderFilename.begin(), strShaderFilename.end());
-		LOG_WARNING("Failed to initialize effect %s [CreateComputeShader]", strShader.c_str());
+		LOG_WARNING("Failed to initialize tone-mapping effect [CreateComputeShader]");
 		RELEASE_COM(pShaderBlob);
 		RELEASE_COM(m_pEffectShader);
 		return false;

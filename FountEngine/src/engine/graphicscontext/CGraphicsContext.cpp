@@ -2,6 +2,7 @@
 #include "systems/CSystemManager.hpp"
 #include "systems/logsystem/CLogSystem.hpp"
 #include "systems/entitysystem/CEntitySystem.hpp"
+#include "systems/postprocesssystem/CPostProcessSystem.hpp"
 #include "engine/renderer/CRenderer.hpp"
 #include "math/defines.hpp"
 #include "utils/defines.hpp"
@@ -72,6 +73,11 @@ bool CGraphicsContext::Initialize(HWND hWnd, int nWidth, int nHeight, bool bEnab
 		return false;
 	}
 
+	if (!g_pPostProcessSystem->Initialize(nWidth, nHeight, m_pDevice)) {
+		LOG_ERROR("Failed to initialize PostProcess System.");
+		return false;
+	}
+
 	m_OffscreenRenderTarget.Initialize(m_pDevice, nWidth, nHeight, 
 		DXGI_FORMAT_R16G16B16A16_FLOAT, RT_CREATE_FLAG_RTV | RT_CREATE_FLAG_SRV);
 
@@ -88,12 +94,23 @@ void CGraphicsContext::Render() {
 	assert(m_pDeviceContext);
 	assert(m_pSwapChain);
 
+	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
 	const float aClearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	m_pDeviceContext->ClearRenderTargetView(m_pRenderTargetView, aClearColor);
 	m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 	CRenderer::GetInstance().PrepareFrame();
 	CRenderer::GetInstance().RenderScene();
+
+	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pDepthStencilView);
+
+	CDXRenderTarget* pResult = g_pPostProcessSystem->Process(&m_OffscreenRenderTarget, m_pDeviceContext);
+	m_pDeviceContext->CopyResource(m_pBackBuffer, pResult->GetTexture());
+	//ID3D11Texture2D* pBackBuffer;
+	//HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
+
+	//RELEASE_COM(pBackBuffer);
 
 	HR(m_pSwapChain->Present(1, 0));
 }
@@ -103,17 +120,22 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	assert(m_pDevice);
 	assert(m_pSwapChain);
 
-	RELEASE_COM(m_pRenderTargetView);
+	//RELEASE_COM(m_pRenderTargetView);
 	RELEASE_COM(m_pDepthStencilView);
 	RELEASE_COM(m_pDepthStencilBuffer);
+	RELEASE_COM(m_pBackBuffer);
 
 	HR(m_pSwapChain->ResizeBuffers(1, nWidth, nHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
-	ID3D11Texture2D* pBackBuffer;
-	HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
-	HR(m_pDevice->CreateRenderTargetView(pBackBuffer, 0, &m_pRenderTargetView));
-	RELEASE_COM(pBackBuffer);
+	HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&m_pBackBuffer)));
+	//ID3D11Texture2D* pBackBuffer;
+	//HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
+	//HR(m_pDevice->CreateRenderTargetView(pBackBuffer, 0, &m_pRenderTargetView));
+	//RELEASE_COM(pBackBuffer);
+	
+	g_pPostProcessSystem->OnResize(nWidth, nHeight, m_pDevice);
 
 	m_OffscreenRenderTarget.Resize(m_pDevice, nWidth, nHeight);
+	m_pRenderTargetView = m_OffscreenRenderTarget.GetRenderTargetView();
 
 	D3D11_TEXTURE2D_DESC dxDepthStencilDesc;
 	dxDepthStencilDesc.Width = nWidth;
@@ -140,7 +162,7 @@ void CGraphicsContext::OnResize(int nWidth, int nHeight) {
 	HR(m_pDevice->CreateTexture2D(&dxDepthStencilDesc, 0, &m_pDepthStencilBuffer));
 	HR(m_pDevice->CreateDepthStencilView(m_pDepthStencilBuffer, 0, &m_pDepthStencilView));
 
-	m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+	//m_pDeviceContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
 
 	m_dxViewport.TopLeftX = 0;
 	m_dxViewport.TopLeftY = 0;
@@ -171,7 +193,8 @@ DirectX::XMFLOAT4X4& CGraphicsContext::GetProjectionMatrix() {
 CGraphicsContext::~CGraphicsContext() {
 	RELEASE_COM(m_pDepthStencilBuffer);
 	RELEASE_COM(m_pDepthStencilView);
-	RELEASE_COM(m_pRenderTargetView);
+	RELEASE_COM(m_pBackBuffer);
+	// RELEASE_COM(m_pRenderTargetView);
 
 	RELEASE_COM(m_pSwapChain);
 	RELEASE_COM(m_pDeviceContext);
