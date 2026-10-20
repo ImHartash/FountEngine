@@ -16,8 +16,13 @@ public:
 		ID3D11DeviceContext* pDeviceContext) = 0;
 	virtual void OnResize(uint32_t nWidth, uint32_t nHeight) { this->m_nWidth = nWidth; this->m_nHeight = nHeight; }
 
+	virtual void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }
+	virtual bool IsEnabled() const { return m_bEnabled; }
+
 protected:
 	uint32_t m_nWidth;
 	uint32_t m_nHeight;
 	ID3D11ComputeShader* m_pEffectShader = nullptr;
+
+	bool m_bEnabled = true;
 };

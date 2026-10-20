@@ -49,7 +49,7 @@ void main( uint3 nDispatchThreadID : SV_DispatchThreadID ) {
     
     float3 vecHDR = vecColor.rgb;
     float3 vecLDR = ACESFitted(vecHDR);
-    vecLDR = pow(vecLDR, 1.f / 1.5f);
+    vecLDR = pow(vecLDR, 1.f / 2.2f);
     
     gOutputTexture[nDispatchThreadID.xy] = float4(vecLDR, vecColor.a);
 }

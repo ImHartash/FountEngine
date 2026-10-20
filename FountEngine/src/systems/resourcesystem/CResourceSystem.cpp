@@ -193,7 +193,8 @@ std::unique_ptr<IResource> CResourceSystem::LoadTexture(std::vector<char>& vecDa
 	TexDesc.Height = Header.nHeight;
 	TexDesc.MipLevels = Header.nMipLevels;
 	TexDesc.ArraySize = 1;
-	TexDesc.Format = static_cast<DXGI_FORMAT>(Header.nDXFormat);
+	//TexDesc.Format = static_cast<DXGI_FORMAT>(Header.nDXFormat);
+	TexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	TexDesc.SampleDesc.Count = 1;
 	TexDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	TexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;

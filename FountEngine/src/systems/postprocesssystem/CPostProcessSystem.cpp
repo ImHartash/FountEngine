@@ -41,6 +41,7 @@ CDXRenderTarget* CPostProcessSystem::Process(CDXRenderTarget* pOffscreenTexture,
 	// Applying HDR post-processing
 	for (uint8_t nEffectIndex = 0; nEffectIndex < static_cast<uint8_t>(m_vecHDREffects.size()); nEffectIndex++) {
 		IPostEffect* pEffect = m_vecHDREffects[nEffectIndex].get();
+		if (!pEffect->IsEnabled()) continue;
 		if (nEffectIndex == 0) pEffect->ApplyEffect(pOffscreenTexture, &m_HDRTexture2, pDeviceContext);
 		else if (nEffectIndex % 2 == 0) pEffect->ApplyEffect(&m_HDRTexture1, &m_HDRTexture2, pDeviceContext);
 		else pEffect->ApplyEffect(&m_HDRTexture2, &m_HDRTexture1, pDeviceContext);
@@ -53,6 +54,7 @@ CDXRenderTarget* CPostProcessSystem::Process(CDXRenderTarget* pOffscreenTexture,
 	// Applying LDR post-processing
 	for (uint8_t nEffectIndex = 0; nEffectIndex < static_cast<uint8_t>(m_vecLDREffects.size()); nEffectIndex++) {
 		IPostEffect* pEffect = m_vecLDREffects[nEffectIndex].get();
+		if (!pEffect->IsEnabled()) continue;
 		if (nEffectIndex % 2 == 0) pEffect->ApplyEffect(&m_LDRTexture1, &m_LDRTexture2, pDeviceContext);
 		else pEffect->ApplyEffect(&m_LDRTexture2, &m_LDRTexture1, pDeviceContext);
 	}
