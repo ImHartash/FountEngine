@@ -18,8 +18,11 @@ bool CPostProcessSystem::Initialize(int nWidth, int nHeight, ID3D11Device* pDevi
 	// IMPORTANT: Initialize the effects in the order in which they should process the texture.
 
 	// Initializing LDR
+	//bResult &= this->InitializeLDREffect<CSimpleEffect>(
+	//	L"game/shaders/postprocess/pixeling_c.cso", pDevice);
+
 	bResult &= this->InitializeLDREffect<CSimpleEffect>(
-		L"game/shaders/postprocess/pixeling_c.cso", pDevice);
+		L"game/shaders/postprocess/chromatic_abberation_c.cso", pDevice);
 
 	// Initializing Render Targets
 	m_HDRTexture1.Initialize(pDevice, nWidth, nHeight, DXGI_FORMAT_R16G16B16A16_FLOAT, RT_CREATE_FLAG_SRV | RT_CREATE_FLAG_UAV);
