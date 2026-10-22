@@ -4,6 +4,7 @@
 #include "systems/entitysystem/CEntitySystem.hpp"
 #include "systems/inputsystem/CInputSystem.hpp"
 #include "systems/filesystem/CFileSystem.hpp"
+#include "systems/postprocesssystem/CPostProcessSystem.hpp"
 
 #define MIN_CLIENT_WINDOW_SIZE_X 500
 #define MIN_CLIENT_WINDOW_SIZE_Y 600

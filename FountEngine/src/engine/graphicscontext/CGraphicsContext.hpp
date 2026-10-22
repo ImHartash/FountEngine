@@ -3,6 +3,7 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include "enums/material.hpp"
+#include "systems/postprocesssystem/CDXRenderTarget/CDXRenderTarget.hpp"
 
 class CGraphicsContext {
 public:
@@ -33,6 +34,7 @@ private:
 
 	// Vars
 	bool m_bEnable4xMsaa;
+	CDXRenderTarget m_OffscreenRenderTarget;
 
 	// Matrices
 	DirectX::XMFLOAT4X4 m_mtProjection;
@@ -45,6 +47,7 @@ private:
 	ID3D11RenderTargetView* m_pRenderTargetView;
 	ID3D11DepthStencilView* m_pDepthStencilView;
 	ID3D11Texture2D* m_pDepthStencilBuffer;
+	ID3D11Texture2D* m_pBackBuffer;
 
 	ID3D11BlendState* m_pBlendStates[3] = { nullptr, nullptr, nullptr };
 	ID3D11DepthStencilState* m_pDepthStates[3] = { nullptr, nullptr, nullptr };

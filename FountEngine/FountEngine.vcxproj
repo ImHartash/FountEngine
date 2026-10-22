@@ -157,6 +157,8 @@
     <ClCompile Include="src\engine\graphicscontext\CGraphicsContext.cpp" />
     <ClCompile Include="src\engine\renderer\CRenderer.cpp" />
     <ClCompile Include="src\game\camera\CCameraObject.cpp" />
+    <ClCompile Include="src\game\effects\simpleeffect\CSimpleEffect.cpp" />
+    <ClCompile Include="src\game\effects\tonemapping\CToneMappingEffect.cpp" />
     <ClCompile Include="src\game\entities\basemodelentity\CBaseModelEntity.cpp" />
     <ClCompile Include="src\game\entities\light\baselightentity\CBaseLightEntity.cpp" />
     <ClCompile Include="src\game\entities\light\directionallight\CDirectionalLight.cpp" />
@@ -170,6 +172,8 @@
     <ClCompile Include="src\systems\inputsystem\CInputSystem.cpp" />
     <ClCompile Include="src\systems\logsystem\CLogSystem.cpp" />
     <ClCompile Include="src\game\timer\CGameTimer.cpp" />
+    <ClCompile Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.cpp" />
+    <ClCompile Include="src\systems\postprocesssystem\CPostProcessSystem.cpp" />
     <ClCompile Include="src\systems\resourcesystem\CResourceSystem.cpp" />
     <ClCompile Include="src\wmain.cpp" />
   </ItemGroup>
@@ -182,6 +186,9 @@
     <ClInclude Include="src\game\baseentity\entityhandle\CEntityHandle.hpp" />
     <ClInclude Include="src\game\baseentity\IBaseEntity.hpp" />
     <ClInclude Include="src\game\camera\CCameraObject.hpp" />
+    <ClInclude Include="src\game\effects\IPostEffect.hpp" />
+    <ClInclude Include="src\game\effects\simpleeffect\CSimpleEffect.hpp" />
+    <ClInclude Include="src\game\effects\tonemapping\CToneMappingEffect.hpp" />
     <ClInclude Include="src\game\entities\basemodelentity\CBaseModelEntity.hpp" />
     <ClInclude Include="src\game\entities\basepropentity\CBasePropEntity.hpp" />
     <ClInclude Include="src\game\entities\light\baselightentity\CBaseLightEntity.hpp" />
@@ -214,6 +221,8 @@
     <ClInclude Include="src\systems\logsystem\CLogSystem.hpp" />
     <ClInclude Include="src\game\timer\CGameTimer.hpp" />
     <ClInclude Include="src\math\types\vector3.hpp" />
+    <ClInclude Include="src\systems\postprocesssystem\CPostProcessSystem.hpp" />
+    <ClInclude Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.hpp" />
     <ClInclude Include="src\systems\resourcesystem\CResourceSystem.hpp" />
     <ClInclude Include="src\systems\filesystem\headers\fntmdl_vertex.hpp" />
     <ClInclude Include="src\utils\BufferPerObject_t.hpp" />
@@ -247,6 +256,55 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">FntPixelShader</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">FntPixelShader</EntryPointName>
+    </FxCompile>
+    <None Include="shaders\postprocess\postprocess_common.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <FileType>Document</FileType>
+    </None>
+    <FxCompile Include="shaders\postprocess\chromatic_aberration.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="shaders\postprocess\pixeling.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="shaders\postprocess\tonemapping.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)/game/shaders/postprocess/%(Filename)_c.cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="shaders\vertex_shader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

@@ -72,6 +72,18 @@
     <ClCompile Include="src\game\entities\light\spotlight\CSpotLight.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\effects\tonemapping\CToneMappingEffect.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\postprocesssystem\CPostProcessSystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\effects\simpleeffect\CSimpleEffect.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\engine\application\CApplication.hpp">
@@ -212,13 +224,32 @@
     <ClInclude Include="src\game\entities\light\spotlight\CSpotLight.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="src\systems\postprocesssystem\CPostProcessSystem.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\effects\IPostEffect.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\postprocesssystem\CDXRenderTarget\CDXRenderTarget.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\effects\tonemapping\CToneMappingEffect.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\effects\simpleeffect\CSimpleEffect.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\common.hlsl" />
     <None Include="shaders\light_shader.hlsl" />
+    <None Include="shaders\postprocess\postprocess_common.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders\vertex_shader.hlsl" />
     <FxCompile Include="shaders\pixel_shader.hlsl" />
+    <FxCompile Include="shaders\postprocess\tonemapping.hlsl" />
+    <FxCompile Include="shaders\postprocess\pixeling.hlsl" />
+    <FxCompile Include="shaders\postprocess\chromatic_aberration.hlsl" />
   </ItemGroup>
 </Project>

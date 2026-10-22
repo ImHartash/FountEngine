@@ -4,12 +4,14 @@
 #include "inputsystem/CInputSystem.hpp"
 #include "logsystem/CLogSystem.hpp"
 #include "resourcesystem/CResourceSystem.hpp"
+#include "postprocesssystem/CPostProcessSystem.hpp"
 
 CEntitySystem* g_pEntitySystem = nullptr;
 CFileSystem* g_pFileSystem = nullptr;
 CInputSystem* g_pInputSystem = nullptr;
 CLogSystem* g_pLogSystem = nullptr;
 CResourceSystem* g_pResourceSystem = nullptr;
+CPostProcessSystem* g_pPostProcessSystem = nullptr;
 
 CSystemManager& CSystemManager::GetInstance() {
     static CSystemManager Instance;
@@ -33,6 +35,9 @@ bool CSystemManager::Initialize() {
 
     m_pResourceSystem = std::make_unique<CResourceSystem>();
     g_pResourceSystem = m_pResourceSystem.get();
+
+    m_pPostProcessSystem = std::make_unique<CPostProcessSystem>();
+    g_pPostProcessSystem = m_pPostProcessSystem.get();
 
     return m_bInitialized;
 }
