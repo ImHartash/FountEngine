@@ -106,7 +106,8 @@ void CGraphicsContext::Render() {
 	m_pDeviceContext->OMSetRenderTargets(0, nullptr, m_pDepthStencilView);
 
 	CDXRenderTarget* pResult = g_pPostProcessSystem->Process(&m_OffscreenRenderTarget, m_pDeviceContext);
-	m_pDeviceContext->CopyResource(m_pBackBuffer, pResult->GetTexture());
+	if (pResult != nullptr)
+		m_pDeviceContext->CopyResource(m_pBackBuffer, pResult->GetTexture());
 	//ID3D11Texture2D* pBackBuffer;
 	//HR(m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pBackBuffer)));
 

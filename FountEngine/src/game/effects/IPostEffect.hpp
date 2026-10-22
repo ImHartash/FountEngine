@@ -20,8 +20,8 @@ public:
 	virtual bool IsEnabled() const { return m_bEnabled; }
 
 protected:
-	uint32_t m_nWidth;
-	uint32_t m_nHeight;
+	uint32_t m_nWidth = 0;
+	uint32_t m_nHeight = 0;
 	ID3D11ComputeShader* m_pEffectShader = nullptr;
 
 	bool m_bEnabled = true;
